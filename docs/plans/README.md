@@ -1,6 +1,8 @@
 # Plans
 
-Coinance is built in phases. Each phase has a plan written before the work starts: what to build, how it will be checked, and what was decided along the way. One phase is one commit.
+Coinance is built in phases.
+Each phase has a plan written before the work starts: what to build, how it will be checked, and what was decided along the way.
+One phase is one commit.
 
 | Phase | Plan | Delivers |
 | --- | --- | --- |
@@ -26,14 +28,12 @@ Order follows the weight of each part: numbers that are right come first, polish
 | Web | React, Vite, TanStack Query, Recharts, plain CSS | Small, accessible, responsive |
 | Deploy | One Docker image on Render; the API serves the built frontend | One URL, no CORS; the sample data comes from secret files |
 
-Rejected along the way: a pnpm workspace with a shared `core` package (nothing to share), Hono
-(fine, but NestJS is what I know), Python in the app (kept only as the oracle), serverless
-hosting (it would lose the in-memory dataset between requests).
+Rejected along the way: a pnpm workspace with a shared `core` package (nothing to share), Hono (fine, but NestJS is what I know), Python in the app (kept only as the oracle), serverless hosting (it would lose the in-memory dataset between requests).
 
 ## Assumptions
 
-Six questions went to the company before starting; the answer was to choose sensible defaults
-and document them. Details and reasons are in [analysis](00-analysis.md#assumptions).
+Six questions went to the company before starting; the answer was to choose sensible defaults and document them.
+Details and reasons are in [analysis](00-analysis.md#assumptions).
 
 1. Positions are per asset across both exchanges; the exchange filter applies to transactions.
 2. Importing `trades.csv` replaces the dataset.
@@ -44,9 +44,9 @@ and document them. Details and reasons are in [analysis](00-analysis.md#assumpti
 
 ## Working with the agent
 
-`CLAUDE.md` holds the business rules. `.claude/` holds the guardrails and the repeatable steps:
+`CLAUDE.md` holds the business rules.
+`.claude/` holds the guardrails and the repeatable steps:
 
 - `settings.json` denies commits and pushes (I commit every step myself) and any edit to `data/`.
-- Skills: `calc-check` (prove numbers independently), `ui-review` (house UI rules, checked in a
-  browser), `ai-log` (record each meaningful step for the write-up), `deploy-check`.
+- Skills: `calc-check` (prove numbers independently), `ui-review` (house UI rules, checked in a browser), `ai-log` (record each meaningful step for the write-up), `deploy-check`.
 - Agent: `calc-reviewer`, a read-only second look at calculation changes.

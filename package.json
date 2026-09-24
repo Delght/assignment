@@ -5,5 +5,10 @@
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": ">=24.0.0"
+  },
+  "scripts": {
+    "bootstrap": "pnpm -C backend install",
+    "test": "pnpm -C backend test",
+    "verify": "pnpm -C backend verify"
   }
 }

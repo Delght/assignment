@@ -3,8 +3,9 @@ name: ai-log
 description: Append an entry to notes/ai-log.md after a meaningful step (a decision, a finished phase, a bug found, agent output corrected), in the shape AI_WORKFLOW.md needs. Use at the end of each such step.
 ---
 
-Append to `notes/ai-log.md` (gitignored; create it if missing). Keep facts only: what was asked,
-what was done, how it was checked. Leave the review for the person.
+Append to `notes/ai-log.md` (gitignored; create it if missing).
+Keep facts only: what was asked, what was done, how it was checked.
+Leave the review for the person.
 
 ```markdown
 ## <n>. <short title> (<requirement analysis | architecture | implementation | testing | debugging | correction>)
@@ -19,5 +20,4 @@ what was done, how it was checked. Leave the review for the person.
 - Commit: <hash once the person has committed>
 ```
 
-Record corrections honestly: when the agent's first answer was wrong and the person caught it,
-say so; that is what the reviewers look for.
+Record corrections honestly: when the agent's first answer was wrong and the person caught it, say so; that is what the reviewers look for.
