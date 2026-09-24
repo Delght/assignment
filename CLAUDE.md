@@ -43,6 +43,21 @@ Per asset across both exchanges, in ascending `timestamp` order (`trade_id` brea
 Validate the whole file and collect every issue with its line number: required columns, unique `trade_id`, valid UTC ISO-8601 timestamp, supported exchange (Binance, Coinbase), symbol (BTC, ETH, SOL, CKB, DOGE) and side (BUY, SELL), quantity and price > 0, fee ≥ 0, no short.
 Any issue rejects the file and the current dataset stays unchanged.
 
+## API (`/api`, JSON)
+
+- `GET /portfolio`: dataset info, summary and holdings.
+- `GET /transactions?symbol&exchange&side&q&from&to&sort&page&pageSize`: newest first by default.
+  `from` and `to` are inclusive UTC days (YYYY-MM-DD); unknown parameters are rejected.
+- `POST /import` with the file as a `text/csv` body (optional `X-File-Name`): 200, or 422 with every issue.
+  A rejected file changes nothing.
+- `POST /reset`: reload the sample files.
+- `GET /health`.
+- Amounts are decimal strings in plain notation, rounded half-even to 20 decimal places.
+  Errors are `{ code, message, issues? }`.
+- One dataset in memory, shared by all visitors; a restart reloads the sample.
+  Prices come only from `prices.csv`; a missing price leaves the holding unpriced with a warning.
+- NestJS stays a thin shell: controllers validate input with zod and call the domain, which never imports Nest.
+
 ## Definition of done
 
 - The phase plan's acceptance list is met and `pnpm verify` exits 0 (judge by the exit code).
@@ -60,9 +75,11 @@ Out of scope: auth, blockchain, live prices or exchange APIs (the brief forbids 
 From the repository root (Node 24, pnpm 11 via corepack):
 
 - `pnpm bootstrap`: install dependencies (not `pnpm setup`, a pnpm built-in).
+- `pnpm dev`: the API on :3000, reloading on change.
 - `pnpm test`: run the tests.
 - `pnpm verify`: lint, typecheck, test and build; must exit 0.
   CI runs the same on every push.
+- `pnpm build` then `pnpm start`: the compiled API, as in production.
 - `python3 scripts/reference.py > backend/test/portfolio/sample-reference.json`: independent Decimal calculation of the sample data, the expected values of the sample-data test.
 
 Inside `backend/`, the same names plus `lint` and `format` apply to that folder only.
