@@ -9,17 +9,25 @@ permissions:
   contents: read
 
 jobs:
-  backend:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        folder: [backend]
+    name: verify (${{ matrix.folder }})
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: ${{ matrix.folder }}
     steps:
       - uses: actions/checkout@v5
+      # pnpm first: setup-node reads packageManager and needs pnpm on PATH to cache its store.
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: corepack enable
+          cache: pnpm
+          cache-dependency-path: ${{ matrix.folder }}/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       # The sample CSVs are not in git, so the sample-data suite skips here; every other test runs.
       - run: pnpm verify
