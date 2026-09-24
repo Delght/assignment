@@ -1,0 +1,63 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #16181d;
+  --text-muted: #5b6270;
+  --border: #dde1e7;
+  --hover: rgba(22, 24, 29, 0.05);
+  --accent: #2456d6;
+  --accent-text: #ffffff;
+  --up: #11743f;
+  --down: #b3261e;
+  --warning-bg: #fff6dc;
+  --warning-border: #e7c24f;
+  --error-bg: #fdecea;
+  --error-border: #e0918b;
+  --success-bg: #e8f5ec;
+  --success-border: #86c79b;
+  --info-bg: #e9effd;
+  --info-border: #9db4ee;
+  /* Each asset keeps its own colour everywhere, close to its usual brand colour. */
+  --asset-btc: #f7931a;
+  --asset-eth: #627eea;
+  --asset-sol: #9945ff;
+  --asset-ckb: #2fb37a;
+  --asset-doge: #c2a633;
+  /* Chart gain and loss: brighter than the text colours, which must stay readable as text. */
+  --gain: #2e9d5b;
+  --loss: #d64545;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111317;
+    --surface: #1a1d23;
+    --text: #e8eaef;
+    --text-muted: #a3aab8;
+    --border: #2e333d;
+    --hover: rgba(232, 234, 239, 0.07);
+    --accent: #7ea2ff;
+    --accent-text: #0b1020;
+    --up: #5bd08a;
+    --down: #ff8a80;
+    --warning-bg: #3a3014;
+    --warning-border: #8a7324;
+    --error-bg: #3b1d1b;
+    --error-border: #8f4a45;
+    --success-bg: #173024;
+    --success-border: #3f7d57;
+    --info-bg: #1b2540;
+    --info-border: #3e5591;
+    --asset-btc: #f9a94a;
+    --asset-eth: #8a9ef0;
+    --asset-sol: #b27dff;
+    --asset-ckb: #5fd6a1;
+    --asset-doge: #d6bd52;
+    --gain: #4cc38a;
+    --loss: #f06b6b;
+  }
+}
