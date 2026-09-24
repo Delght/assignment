@@ -7,7 +7,7 @@ Goal: a dashboard that answers "how is my portfolio doing and why" at a glance, 
 `frontend/src/`, React with Vite:
 
 - `api/`: fetch client, TanStack Query hooks, the contract types mirrored from the backend.
-- `features/overview/`: summary cards (value, cost basis, realized, unrealized, total P&L, fees) and the price timestamp.
+- `features/overview/`: summary cards (current value, cost basis, realized, unrealized, total P&L, fees) and the price timestamp.
 - `features/holdings/`: holdings table on wide screens, expandable list on narrow ones; closed assets with realized P&L stay visible.
 - `features/charts/`: allocation donut by current value; realized and unrealized P&L per asset.
 - `features/transactions/`: explorer with asset search, exchange, side and date filters, sort by time, pagination, gross value and fee columns.
@@ -47,3 +47,13 @@ Changes made after reviewing the running app, now part of the `ui-review` skill:
 - [x] 375 px, 1024 px and 1280 px, light and dark, keyboard only: checked in the browser.
 - [x] Tests for formatting, chart data, filters, the explorer, import and the compact layout.
 - [x] `pnpm verify` exits 0 for both folders; CI runs both.
+
+## Revised after review
+
+From later reviews of the running app and of the code:
+
+- Phone lists repeated "of the portfolio" on every row and left two figures unlabelled; a column head now names each line once, and each figure carries its label for screen readers.
+- Cards without a note placed their figure lower than their neighbours; figures now line up, and every card has a note that says what it covers.
+- The same figure had different names on the table and the phone list (*Avg cost* and *Average cost*); each feature now takes its labels from one place (`holdingFields.tsx`, `transactionFields.ts`).
+- After importing a smaller file the explorer stayed on a page that no longer existed; a new dataset now starts it from page 1.
+- The hidden file input behind the import button was a keyboard stop with no label; it is out of the tab order.

@@ -17,6 +17,7 @@ Read the current phase's plan before starting.
   Displays and formats values computed by the backend; never recomputes P&L.
 - `data/trades.csv`, `data/prices.csv`: the supplied sample data (not in git).
   Never edit them.
+- `samples/`: generated trades files for trying the import (valid and invalid), written by `scripts/generate_samples.py`; unlike `data/`, they are public.
 - `scripts/reference.py`: an independent Python implementation of the rules, the source of the expected values in the sample-data test.
 
 ## Calculation rules (weighted-average cost)
@@ -34,13 +35,13 @@ Per asset across both exchanges, in ascending `timestamp` order (`trade_id` brea
 
 ## Numbers
 
-- Money and quantities use `decimal.js`, never JS `number`: floats leave dust after full closes (ETH quantity `-8.9e-16` after TRD-0077 on the sample).
-- Decimals cross the API as plain-notation strings, rounded half-even to 20 places.
+- Money and quantities use `decimal.js` at 60 significant digits, never JS `number`: floats leave dust after full closes (ETH quantity `-8.9e-16` after TRD-0077 on the sample).
+- Decimals cross the API as plain-notation strings at the engine's full precision, never cut.
   Round for display only in `frontend/src/format/`, by passing the string to `Intl.NumberFormat`.
 
 ## Import
 
-Validate the whole file and collect every issue with its line number: required columns, unique `trade_id`, valid UTC ISO-8601 timestamp, supported exchange (Binance, Coinbase), symbol (BTC, ETH, SOL, CKB, DOGE) and side (BUY, SELL), quantity and price > 0, fee ≥ 0, no short.
+Validate the whole file and collect every issue with its line number: required columns, unique `trade_id`, valid UTC ISO-8601 timestamp, supported exchange (Binance, Coinbase), symbol (BTC, ETH, SOL, CKB, DOGE) and side (BUY, SELL), quantity and price > 0, fee ≥ 0, at most 8 decimal places and 12 digits before the point, no short sale (judged per asset, for every asset whose rows are all valid; a row that cannot be tied to an asset leaves every balance unknown).
 Any issue rejects the file and the current dataset stays unchanged.
 
 ## API (`/api`, JSON)
@@ -52,7 +53,7 @@ Any issue rejects the file and the current dataset stays unchanged.
   A rejected file changes nothing.
 - `POST /reset`: reload the sample files.
 - `GET /health`.
-- Amounts are decimal strings in plain notation, rounded half-even to 20 decimal places.
+- Amounts are decimal strings in plain notation at full precision.
   Errors are `{ code, message, issues? }`.
 - One dataset in memory, shared by all visitors; a restart reloads the sample.
   Prices come only from `prices.csv`; a missing price leaves the holding unpriced with a warning.
@@ -60,7 +61,7 @@ Any issue rejects the file and the current dataset stays unchanged.
 
 ## Frontend
 
-- `src/api/types.ts` mirrors `backend/src/api/contract.ts`; change both together.
+- `src/api/types.ts` mirrors `backend/src/api/contract.ts`; change both together (`backend/test/api/contract-mirror.ts` fails the backend typecheck when they differ).
 - Display rounding happens only in `src/format/format.ts`: decimal strings go to `Intl.NumberFormat` as strings (exact decimals, half-even).
   Never `Number()` an amount for display; charts convert to numbers only to size shapes, labels come from the strings.
 - Gains and losses show a sign and an arrow as well as colour (`shared/Pnl.tsx`).
@@ -71,9 +72,12 @@ Any issue rejects the file and the current dataset stays unchanged.
 ## Definition of done
 
 - The phase plan's acceptance list is met and `pnpm verify` exits 0 (judge by the exit code).
+- A bug fix comes with a test that fails on the code before the fix; run it there once to see it fail.
+- When a rule, limit or number changes, search README, CLAUDE.md, `docs/plans/`, `.claude/skills/` and code comments for the old wording and update every place that still states it.
 - Expected test values come from hand calculations or `scripts/reference.py`, never from running the code under test.
   Calculation changes go through the `calc-check` skill.
 - UI changes go through the `ui-review` skill before they are called finished.
+- Before a phase is committed, the `code-reviewer` agent reviews the uncommitted changes; each CONFIRMED finding is fixed or answered.
 - A meaningful step gets an entry via the `ai-log` skill.
 
 ## Scope
@@ -88,10 +92,11 @@ From the repository root (Node 24, pnpm 11 via corepack):
 - `pnpm dev`: the API on :3000 and the web app on :5173 (Vite proxies `/api` to the API).
 - `pnpm test`: backend and frontend tests.
 - `pnpm verify`: lint, typecheck, test and build for both folders; must exit 0.
-  A Stop hook runs it before the agent finishes when code has changed.
+  A Stop hook runs it before the agent finishes when code has changed, and every edited source file is formatted by a hook, so do not format by hand.
   CI runs the same on every push.
 - `pnpm build` then `pnpm start`: the compiled API serving the built web app on :3000, as in production.
 - `python3 scripts/reference.py > backend/test/portfolio/sample-reference.json`: independent Decimal calculation of the sample data, the expected values of the sample-data test.
+- `python3 -m unittest discover -s scripts`: tests of the reference script itself.
 
 Production image (the API serves the built frontend from one origin):
 

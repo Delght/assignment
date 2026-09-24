@@ -60,8 +60,10 @@ Asked before starting; the company replied to choose sensible defaults and note 
 | 2 | Re-import: replace or merge? | Replace the whole dataset | The file is the full history; merging raises conflict rules nobody asked for |
 | 3 | Shared deployment, persistence? | One shared in-memory dataset, a reset button, restart reloads the sample | No auth in scope; reviewers always get back to a known state |
 | 4 | Can prices be imported? | No, `prices.csv` is a fixed snapshot | Only trades are described as imported |
-| 5 | Show P&L %? | Unrealized % against the current cost basis | The usual reading of "how is this holding doing" |
-| 6 | Held asset without a price? | Exclude from value and allocation, warn | Never invent a price of 0 |
+| 5 | Show P&L %? | Unrealized % against the cost basis of the priced open positions; no % for realized | The usual reading of "how is this holding doing"; the cost of what was sold is a less useful base than the amount |
+| 6 | Held asset without a price? | Exclude from value, unrealized P&L and allocation, flag it and warn; its cost basis still counts | Never invent a price of 0; cost basis depends on trades only |
+
+Also assumed: timestamps are UTC (the brief says so), ties in time are ordered by `trade_id`, a file with only a header is a valid empty portfolio, and closed positions stay visible with their realized P&L.
 
 ## Done when
 

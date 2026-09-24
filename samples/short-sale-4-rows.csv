@@ -1,0 +1,5 @@
+trade_id,timestamp,exchange,symbol,side,quantity,price_usd,fee_usd
+SS-1,2026-01-05T09:00:00Z,Binance,ETH,BUY,1,3300.00,3.30
+SS-2,2026-01-20T09:00:00Z,Coinbase,ETH,SELL,0.6,3500.00,2.10
+SS-3,2026-02-10T09:00:00Z,Binance,ETH,SELL,0.6,3600.00,2.16
+SS-4,2026-02-12T09:00:00Z,Coinbase,BTC,SELL,0.01,97000.00,0.97

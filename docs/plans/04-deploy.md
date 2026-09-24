@@ -6,7 +6,7 @@ Goal: one public URL that serves the dashboard and the API, with the sample data
 
 - `Dockerfile`: multi-stage build.
   One stage installs and builds both folders, another installs the backend's production dependencies only, and the final stage copies the compiled API, the built web app and those dependencies onto `node:24-slim`, running as the non-root `node` user.
-- `.dockerignore`: dependencies, build output, env files, git, agent and docs folders, and `data/` stay out of the build context.
+- `.dockerignore`: dependencies, build output, env files, git, agent and docs folders, `samples/` and `data/` stay out of the build context.
 - Render web service built from the `Dockerfile`.
 
 ## Decisions
@@ -36,8 +36,8 @@ Goal: one public URL that serves the dashboard and the API, with the sample data
 ## Acceptance
 
 - [x] `docker build` succeeds from a clean context.
-- [x] The container, run as Render runs it (`PORT=10000`, data mounted read-only at `/etc/secrets`): health ok, `/` and its script return 200, 200 trades, no warnings, total P&L `-4401.3084972465`.
+- [x] The container, run as Render runs it (`PORT=10000`, data mounted read-only at `/etc/secrets`): health ok, `/` and its script return 200, 200 trades, no warnings, total P&L `-4401.3084972465` to 10 places.
 - [x] Runs as `node`; `Content-Security-Policy` and `X-Content-Type-Options: nosniff` are sent.
 - [x] An invalid import answers 422 and leaves the portfolio unchanged.
 - [x] The page renders in a browser with no console errors.
-- [ ] The live service passes the same checks (`deploy-check` skill).
+- [x] The live service passes the same checks (`deploy-check` skill).
