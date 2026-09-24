@@ -93,4 +93,10 @@ From the repository root (Node 24, pnpm 11 via corepack):
 - `pnpm build` then `pnpm start`: the compiled API serving the built web app on :3000, as in production.
 - `python3 scripts/reference.py > backend/test/portfolio/sample-reference.json`: independent Decimal calculation of the sample data, the expected values of the sample-data test.
 
+Production image (the API serves the built frontend from one origin):
+
+- `docker build -t coinance .`
+- `docker run -p 3000:3000 -v "$PWD/data:/app/data:ro" coinance`.
+  `DATA_DIR` points elsewhere when the sample files are mounted somewhere else (Render: `/etc/secrets`).
+
 Inside `backend/` or `frontend/`, the same names plus `lint` and `format` apply to that folder only.
