@@ -58,6 +58,16 @@ Any issue rejects the file and the current dataset stays unchanged.
   Prices come only from `prices.csv`; a missing price leaves the holding unpriced with a warning.
 - NestJS stays a thin shell: controllers validate input with zod and call the domain, which never imports Nest.
 
+## Frontend
+
+- `src/api/types.ts` mirrors `backend/src/api/contract.ts`; change both together.
+- Display rounding happens only in `src/format/format.ts`: decimal strings go to `Intl.NumberFormat` as strings (exact decimals, half-even).
+  Never `Number()` an amount for display; charts convert to numbers only to size shapes, labels come from the strings.
+- Gains and losses show a sign and an arrow as well as colour (`shared/Pnl.tsx`).
+- Each asset has a fixed colour (`shared/assetColors.ts`); green and red mean gain and loss only.
+- The transaction explorer filters, sorts and pages on the server (`/api/transactions`).
+- Below 40rem (640 px), wide tables become expandable lists.
+
 ## Definition of done
 
 - The phase plan's acceptance list is met and `pnpm verify` exits 0 (judge by the exit code).
@@ -75,11 +85,12 @@ Out of scope: auth, blockchain, live prices or exchange APIs (the brief forbids 
 From the repository root (Node 24, pnpm 11 via corepack):
 
 - `pnpm bootstrap`: install dependencies (not `pnpm setup`, a pnpm built-in).
-- `pnpm dev`: the API on :3000, reloading on change.
-- `pnpm test`: run the tests.
-- `pnpm verify`: lint, typecheck, test and build; must exit 0.
+- `pnpm dev`: the API on :3000 and the web app on :5173 (Vite proxies `/api` to the API).
+- `pnpm test`: backend and frontend tests.
+- `pnpm verify`: lint, typecheck, test and build for both folders; must exit 0.
+  A Stop hook runs it before the agent finishes when code has changed.
   CI runs the same on every push.
-- `pnpm build` then `pnpm start`: the compiled API, as in production.
+- `pnpm build` then `pnpm start`: the compiled API serving the built web app on :3000, as in production.
 - `python3 scripts/reference.py > backend/test/portfolio/sample-reference.json`: independent Decimal calculation of the sample data, the expected values of the sample-data test.
 
-Inside `backend/`, the same names plus `lint` and `format` apply to that folder only.
+Inside `backend/` or `frontend/`, the same names plus `lint` and `format` apply to that folder only.

@@ -1,0 +1,18 @@
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 1rem;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  margin: 0;
+  border: 1px dashed var(--border);
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.empty-state h2 {
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}

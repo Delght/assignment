@@ -9,5 +9,18 @@
       "Edit(data/**)",
       "Write(data/**)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify-on-stop.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
   }
 }

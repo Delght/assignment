@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        folder: [backend]
+        folder: [backend, frontend]
     name: verify (${{ matrix.folder }})
     runs-on: ubuntu-latest
     defaults:
