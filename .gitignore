@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Sample data from the brief: reviewers already have it; copy it here to run the app
+/data/*.csv
+
+# Raw working notes (the AI log); AI_WORKFLOW.md is the curated version
+/notes/
