@@ -1,0 +1,133 @@
+.chart {
+  container-type: inline-size;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Stacked and centred in a narrow card, donut and legend side by side in a wide one. */
+.allocation {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+@container (min-width: 30rem) {
+  .allocation {
+    grid-template-columns: minmax(12rem, 15rem) auto;
+    justify-content: center;
+    gap: 2rem;
+  }
+}
+
+.allocation-donut {
+  position: relative;
+  width: 100%;
+  max-width: 15rem;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-total {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.donut-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* A chart that grows to the height of its card, so side-by-side cards leave no gap. */
+.chart-fill {
+  height: 100%;
+  grid-template-rows: 1fr;
+}
+
+.chart-fill .chart-canvas {
+  min-height: 17rem;
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.legend li {
+  display: grid;
+  grid-template-columns: 0.8rem 3.5rem 4rem 7rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 3px;
+  flex: none;
+}
+
+.legend-name {
+  font-weight: 600;
+}
+
+.legend-share {
+  text-align: right;
+}
+
+.legend-value {
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.tooltip {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.pnl-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.25rem;
+  font-size: 0.85rem;
+}
+
+.pnl-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Each key shows both colours: the fill tells realized from unrealized, the colour gain or loss. */
+.pnl-key {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--gain) 50%, var(--loss) 50%);
+}
+
+.pnl-key-hatched {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 2px, var(--surface) 2px 4px),
+    linear-gradient(135deg, var(--gain) 50%, var(--loss) 50%);
+}

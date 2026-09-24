@@ -1,0 +1,63 @@
+/* Told apart by shape, not colour: green and red mean gain and loss, and a sale is neither. */
+.side {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.side-sell {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  color: var(--surface);
+}
+
+.explorer {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.filters label,
+.page-size {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+@media (max-width: 40rem) {
+  .page-size {
+    margin-left: 0;
+  }
+}
+
+.list-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
