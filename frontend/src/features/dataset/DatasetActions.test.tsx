@@ -79,6 +79,47 @@ describe('importing trades', () => {
     );
   });
 
+  it('starts the transaction list again from page 1 once another file is imported', async () => {
+    let loadedAt = '2026-09-24T00:00:00Z';
+    const dataset = () => ({ ...portfolio().dataset, loadedAt });
+    const fake = renderApp({
+      'GET /api/portfolio': () => Response.json(portfolio({ dataset: dataset() })),
+      'GET /api/transactions': (url) =>
+        Response.json({
+          ...transactions,
+          page: Number(url.searchParams.get('page')),
+          total: 60,
+          totalPages: 3,
+        }),
+      'POST /api/import': () => {
+        loadedAt = '2026-09-24T00:05:00Z';
+        return Response.json({ dataset: dataset() });
+      },
+    });
+    const lastPage = () =>
+      fake.calls
+        .filter((c) => c.url.pathname === '/api/transactions')
+        .at(-1)
+        ?.url.searchParams.get('page');
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(lastPage()).toBe('2'));
+    choose(document.querySelector('input[type=file]') as HTMLInputElement, file('csv'));
+    await waitFor(() => expect(lastPage()).toBe('1'));
+  });
+
+  it('keeps the hidden file input out of the tab order and the accessibility tree', async () => {
+    renderApp({
+      'GET /api/portfolio': ok(portfolio()),
+      'GET /api/transactions': ok(transactions),
+    });
+    await screen.findByRole('list', { name: 'Portfolio summary' });
+    const input = document.querySelector('input[type=file]') as HTMLInputElement;
+    // The visible button opens it; reaching it by Tab would be an unlabelled extra stop.
+    expect(input.tabIndex).toBe(-1);
+    expect(input.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('refuses a file over 2 MB without uploading it', async () => {
     const fake = renderApp({
       'GET /api/portfolio': ok(portfolio()),

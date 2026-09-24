@@ -11,15 +11,12 @@ export const btc: Holding = {
   averageCost: '101',
   costBasis: '202',
   currentPrice: '150',
-  priceAsOf: '2026-03-31T23:59:59Z',
   currentValue: '300',
   realizedPnl: '0',
   unrealizedPnl: '98',
   unrealizedReturn: '0.48514851485148514851',
   totalPnl: '98',
   allocation: '0.75',
-  feesPaid: '2',
-  tradeCount: 1,
 };
 
 export const eth: Holding = {
@@ -29,15 +26,12 @@ export const eth: Holding = {
   averageCost: '30',
   costBasis: '150',
   currentPrice: '20',
-  priceAsOf: '2026-03-31T23:59:59Z',
   currentValue: '100',
   realizedPnl: '49',
   unrealizedPnl: '-50',
   unrealizedReturn: '-0.33333333333333333333',
   totalPnl: '-1',
   allocation: '0.25',
-  feesPaid: '1',
-  tradeCount: 2,
 };
 
 export function portfolio(overrides: Partial<PortfolioResponse> = {}): PortfolioResponse {

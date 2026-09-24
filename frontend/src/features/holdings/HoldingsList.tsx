@@ -5,7 +5,7 @@ import { ExpandableList } from '@/shared/ExpandableList';
 import { Pnl } from '@/shared/Pnl';
 
 import { HoldingBadges } from './HoldingBadges';
-import { averageCostText, UnrealizedPnl } from './holdingFields';
+import { averageCostText, HOLDING_LABELS as L, UnrealizedPnl } from './holdingFields';
 import { orderHoldings } from './orderHoldings';
 
 /** Holdings on narrow screens: value and total P&L at a glance, every column on tap. */
@@ -13,6 +13,12 @@ export function HoldingsList({ holdings }: { holdings: Holding[] }) {
   return (
     <ExpandableList
       label="Holdings"
+      columns={{
+        title: L.asset,
+        subtitle: L.allocation,
+        value: L.currentValue,
+        subvalue: L.totalPnl,
+      }}
       items={orderHoldings(holdings).map((h) => ({
         key: h.symbol,
         title: (
@@ -21,18 +27,17 @@ export function HoldingsList({ holdings }: { holdings: Holding[] }) {
             <HoldingBadges holding={h} />
           </>
         ),
-        subtitle: h.allocation === null ? undefined : `${percent(h.allocation)} of the portfolio`,
+        subtitle: h.allocation === null ? undefined : percent(h.allocation),
         value: orDash(h.currentValue, usd),
         subvalue: <Pnl value={h.totalPnl} />,
         dimmed: h.status === 'closed',
         details: [
-          { label: 'Quantity', value: quantity(h.quantity) },
-          { label: 'Average cost', value: averageCostText(h) },
-          { label: 'Price', value: orDash(h.currentPrice, unitPrice) },
-          { label: 'Cost basis', value: usd(h.costBasis) },
-          { label: 'Realized P&L', value: <Pnl value={h.realizedPnl} /> },
-          { label: 'Unrealized P&L', value: <UnrealizedPnl holding={h} /> },
-          { label: 'Fees paid', value: usd(h.feesPaid) },
+          { label: L.quantity, value: quantity(h.quantity) },
+          { label: L.averageCost, value: averageCostText(h) },
+          { label: L.price, value: orDash(h.currentPrice, unitPrice) },
+          { label: L.costBasis, value: usd(h.costBasis) },
+          { label: L.realizedPnl, value: <Pnl value={h.realizedPnl} /> },
+          { label: L.unrealizedPnl, value: <UnrealizedPnl holding={h} /> },
         ],
       }))}
     />

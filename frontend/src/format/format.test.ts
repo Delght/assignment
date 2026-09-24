@@ -15,8 +15,10 @@ import {
 describe('usd', () => {
   it.each([
     ['60620.89161', '$60,620.89'],
-    ['2.675', '$2.68'], // half-even on the exact decimal; via a float this would be $2.67
-    ['2.665', '$2.66'],
+    ['2.675', '$2.68'], // half-even: 7 is odd, so it rounds up
+    ['2.665', '$2.66'], // and 6 is even, so it stays
+    ['1.005000000000000000004999', '$1.01'], // just above half a cent, as the API now sends it
+    ['1234500011.3450000000000001', '$1,234,500,011.35'], // Number() would drop the 1 and show …34
     ['-4401.3084972465', '-$4,401.31'],
     ['0', '$0.00'],
     ['12345678901234567890.125', '$12,345,678,901,234,567,890.12'], // beyond float precision

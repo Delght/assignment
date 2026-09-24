@@ -1,6 +1,7 @@
 import { EXCHANGES, SIDES, SYMBOLS } from '@/api/types';
 
 import { type Filters, isFiltered } from './filters';
+import { TRANSACTION_LABELS as L } from './transactionFields';
 import type { useTransactionFilters } from './useTransactionFilters';
 
 type Props = Omit<ReturnType<typeof useTransactionFilters>, 'goToPage'>;
@@ -13,28 +14,28 @@ export function TransactionFilters({ filters, search, setSearch, update, clear }
       aria-label="Transaction filters"
     >
       <Choice
-        label="Asset"
+        label={L.asset}
         value={filters.symbol}
         all="All assets"
         options={SYMBOLS}
         onChange={(symbol) => update({ symbol: symbol as Filters['symbol'] })}
       />
       <Choice
-        label="Exchange"
+        label={L.exchange}
         value={filters.exchange}
         all="All exchanges"
         options={EXCHANGES}
         onChange={(exchange) => update({ exchange: exchange as Filters['exchange'] })}
       />
       <Choice
-        label="Side"
+        label={L.side}
         value={filters.side}
         all="Buys and sells"
         options={SIDES}
         onChange={(side) => update({ side: side as Filters['side'] })}
       />
       <label>
-        Trade ID
+        {L.tradeId}
         <input
           type="search"
           value={search}

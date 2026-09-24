@@ -1,4 +1,4 @@
-import { type ChangeEvent, useId, useRef, useState } from 'react';
+import { type ChangeEvent, useRef, useState } from 'react';
 
 import { ApiError } from '@/api/client';
 import { useImportTrades, useResetSample } from '@/api/queries';
@@ -10,7 +10,6 @@ import { ImportIssues } from './ImportIssues';
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 
 export function DatasetActions() {
-  const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
   const importTrades = useImportTrades();
   const reset = useResetSample();
@@ -42,19 +41,16 @@ export function DatasetActions() {
       <div className="dataset-actions">
         <input
           ref={input}
-          id={inputId}
           className="visually-hidden"
+          // Opened by the button below, which carries the label; not a stop of its own.
+          tabIndex={-1}
+          aria-hidden="true"
           type="file"
           accept=".csv,text/csv"
           onChange={onFile}
           disabled={busy}
         />
-        <button
-          type="button"
-          onClick={() => input.current?.click()}
-          disabled={busy}
-          aria-controls={inputId}
-        >
+        <button type="button" onClick={() => input.current?.click()} disabled={busy}>
           {importTrades.isPending ? 'Importing…' : 'Import trades.csv'}
         </button>
         <button

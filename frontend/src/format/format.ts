@@ -1,7 +1,8 @@
 /**
  * Display formatting. Amounts arrive as exact decimal strings and go to Intl as strings, which it
- * treats as exact decimals (ES2023), so rounding happens once, here, half-even: "2.675" shows as
- * $2.68, where Number("2.675") is 2.67499… and would show $2.67.
+ * treats as exact decimals (ES2023), so rounding happens once, here, half-even. A double keeps
+ * about 17 significant digits: "1234500011.3450000000000001" shows as $1,234,500,011.35, where
+ * Number() would drop the final 1 and show $1,234,500,011.34.
  */
 const formats = new Map<string, Intl.NumberFormat>();
 

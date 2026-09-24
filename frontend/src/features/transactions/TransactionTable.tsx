@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { type ReactNode, useId } from 'react';
 
 import type { Transaction } from '@/api/types';
 import { quantity, unitPrice, usd, utcCompact } from '@/format/format';
@@ -7,6 +7,7 @@ import { Pnl } from '@/shared/Pnl';
 import { ScrollRegion } from '@/shared/ScrollRegion';
 
 import type { Filters } from './filters';
+import { TRANSACTION_LABELS as L } from './transactionFields';
 
 export function TransactionTable({
   items,
@@ -35,32 +36,21 @@ export function TransactionTable({
                 className="sort"
                 onClick={() => onSortChange(ascending ? 'desc' : 'asc')}
               >
-                Time (UTC) <span aria-hidden="true">{ascending ? '↑' : '↓'}</span>
+                {L.time} <span aria-hidden="true">{ascending ? '↑' : '↓'}</span>
                 <span className="visually-hidden">
                   , sorted {ascending ? 'oldest' : 'newest'} first. Change order.
                 </span>
               </button>
             </th>
-            <th scope="col">Trade ID</th>
-            <th scope="col">Exchange</th>
-            <th scope="col">Asset</th>
-            <th scope="col">Side</th>
-            <th scope="col" className="num">
-              Quantity
-            </th>
-            <th scope="col" className="num">
-              Price
-            </th>
-            <th scope="col" className="num">
-              Gross value
-            </th>
-            <th scope="col" className="num">
-              Fee
-            </th>
-
-            <th scope="col" className="num">
-              Realized P&amp;L
-            </th>
+            <th scope="col">{L.tradeId}</th>
+            <th scope="col">{L.exchange}</th>
+            <th scope="col">{L.asset}</th>
+            <th scope="col">{L.side}</th>
+            <NumHead>{L.quantity}</NumHead>
+            <NumHead>{L.price}</NumHead>
+            <NumHead>{L.grossValue}</NumHead>
+            <NumHead>{L.fee}</NumHead>
+            <NumHead>{L.realizedPnl}</NumHead>
           </tr>
         </thead>
         <tbody>
@@ -87,5 +77,13 @@ export function TransactionTable({
         </tbody>
       </table>
     </ScrollRegion>
+  );
+}
+
+function NumHead({ children }: { children: ReactNode }) {
+  return (
+    <th scope="col" className="num">
+      {children}
+    </th>
   );
 }

@@ -16,6 +16,9 @@ describe('App', () => {
     expect(within(summary).getByText('$352.00')).toBeTruthy();
     expect(within(summary).getByText('+$97.00')).toBeTruthy();
     expect(within(summary).getByText('+13.64%')).toBeTruthy();
+    // Every card says what its figure covers.
+    expect(within(summary).getByText('Open positions at snapshot prices')).toBeTruthy();
+    expect(within(summary).getByText('From sells, after fees')).toBeTruthy();
     expect(screen.getByText('2026-03-31 23:59:59 UTC')).toBeTruthy();
 
     const holdings = screen.getByRole('table', { name: /One row per asset/ });

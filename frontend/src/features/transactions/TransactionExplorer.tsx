@@ -13,6 +13,7 @@ import { Pagination } from './Pagination';
 import { TransactionFilters } from './TransactionFilters';
 import { TransactionList } from './TransactionList';
 import { TransactionTable } from './TransactionTable';
+import { TRANSACTION_LABELS as L } from './transactionFields';
 import { useTransactionFilters } from './useTransactionFilters';
 
 export function TransactionExplorer() {
@@ -42,9 +43,9 @@ export function TransactionExplorer() {
             label="Totals for the current filters"
             items={[
               { label: 'Trades', value: data.total },
-              { label: 'Gross value', value: usd(data.totals.grossValue) },
+              { label: L.grossValue, value: usd(data.totals.grossValue) },
               { label: 'Fees', value: usd(data.totals.fees) },
-              { label: 'Realized P&L', value: <Pnl value={data.totals.realizedPnl} /> },
+              { label: L.realizedPnl, value: <Pnl value={data.totals.realizedPnl} /> },
             ]}
           />
         </div>

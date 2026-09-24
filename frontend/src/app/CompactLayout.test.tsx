@@ -21,10 +21,16 @@ describe('on a phone', () => {
 
     const eth = within(holdings).getByText('ETH').closest('details') as HTMLElement;
     const summary = eth.querySelector('summary') as HTMLElement;
-    // At a glance: value, total P&L and share of the portfolio.
+    // At a glance: value, total P&L and share of the portfolio, named once above the list.
     expect(within(summary).getByText('$100.00')).toBeTruthy();
     expect(within(summary).getByText('-$1.00')).toBeTruthy();
-    expect(within(summary).getByText('25.00% of the portfolio')).toBeTruthy();
+    expect(within(summary).getByText('25.00%')).toBeTruthy();
+    // Each figure is named for screen readers too, not only by the visual head.
+    expect(summary.textContent).toContain('Allocation: 25.00%');
+    expect(summary.textContent).toContain('Current value: $100.00');
+    expect(summary.textContent).toMatch(/Total P&L: \S*-\$1\.00/);
+    const head = holdings.previousElementSibling as HTMLElement;
+    expect(within(head).getByText('Allocation')).toBeTruthy();
     // On tap: the remaining columns.
     const details = eth.querySelector('dl') as HTMLElement;
     expect(within(details).getByText('Realized P&L').nextElementSibling?.textContent).toBe(
@@ -43,7 +49,14 @@ describe('on a phone', () => {
 
     const list = await screen.findByRole('list', { name: 'Transactions' });
     const sale = within(list).getByText('ETH').closest('details') as HTMLElement;
-    expect(within(sale.querySelector('summary') as HTMLElement).getByText('$200.00')).toBeTruthy();
+    const summary = sale.querySelector('summary') as HTMLElement;
+    expect(within(summary).getByText('$200.00')).toBeTruthy();
+    // The head names the columns once; each row still reads fully to a screen reader.
+    const head = list.previousElementSibling as HTMLElement;
+    expect(within(head).getByText('Gross value')).toBeTruthy();
+    expect(summary.textContent).toContain('Time (UTC): 2025-10-02 00:00');
+    expect(summary.textContent).toContain('Gross value: $200.00');
+    expect(summary.textContent).toMatch(/Realized P&L: \S*\+\$49\.00/);
     expect(within(sale.querySelector('dl') as HTMLElement).getByText('T3')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /Sorted newest first/ }));

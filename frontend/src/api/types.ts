@@ -1,6 +1,6 @@
 /**
- * Mirror of backend/src/api/contract.ts. Amounts are decimal strings (plain notation,
- * rounded half-even to 20 places by the server); the UI rounds them only when displaying.
+ * Mirror of backend/src/api/contract.ts. Amounts are decimal strings in plain notation at the
+ * server's full precision; the UI rounds them only when displaying.
  */
 export type DecimalString = string;
 
@@ -27,15 +27,12 @@ export type Holding = {
   averageCost: DecimalString;
   costBasis: DecimalString;
   currentPrice: DecimalString | null;
-  priceAsOf: string | null;
   currentValue: DecimalString | null;
   realizedPnl: DecimalString;
   unrealizedPnl: DecimalString | null;
   unrealizedReturn: DecimalString | null;
   totalPnl: DecimalString | null;
   allocation: DecimalString | null;
-  feesPaid: DecimalString;
-  tradeCount: number;
 };
 
 export type PortfolioSummary = {

@@ -10,14 +10,18 @@ export function SummaryCards({ summary }: { summary: PortfolioSummary }) {
     <ul className="cards" aria-label="Portfolio summary">
       <Card
         label="Current value"
-        note={unpriced ? `Excludes ${summary.unpricedSymbols.join(', ')} (no price)` : undefined}
+        note={
+          unpriced
+            ? `Excludes ${summary.unpricedSymbols.join(', ')} (no price)`
+            : 'Open positions at snapshot prices'
+        }
       >
         {usd(summary.currentValue)}
       </Card>
       <Card label="Cost basis" note="Open positions, fees included">
         {usd(summary.costBasis)}
       </Card>
-      <Card label="Realized P&L">
+      <Card label="Realized P&L" note="From sells, after fees">
         <Pnl value={summary.realizedPnl} />
       </Card>
       <Card

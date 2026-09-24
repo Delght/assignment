@@ -7,7 +7,7 @@ import { Pnl } from '@/shared/Pnl';
 import { ScrollRegion } from '@/shared/ScrollRegion';
 
 import { HoldingBadges } from './HoldingBadges';
-import { averageCostText, UnrealizedPnl } from './holdingFields';
+import { averageCostText, HOLDING_LABELS as L, UnrealizedPnl } from './holdingFields';
 import { orderHoldings } from './orderHoldings';
 
 export function HoldingsTable({
@@ -23,34 +23,16 @@ export function HoldingsTable({
         <caption id="holdings-caption">One row per asset. Average cost includes buy fees.</caption>
         <thead>
           <tr>
-            <th scope="col">Asset</th>
-            <th scope="col" className="num">
-              Quantity
-            </th>
-            <th scope="col" className="num">
-              Avg cost
-            </th>
-            <th scope="col" className="num">
-              Price
-            </th>
-            <th scope="col" className="num">
-              Cost basis
-            </th>
-            <th scope="col" className="num">
-              Value
-            </th>
-            <th scope="col" className="num">
-              Realized P&amp;L
-            </th>
-            <th scope="col" className="num">
-              Unrealized P&amp;L
-            </th>
-            <th scope="col" className="num">
-              Total P&amp;L
-            </th>
-            <th scope="col" className="num">
-              Allocation
-            </th>
+            <th scope="col">{L.asset}</th>
+            <NumHead>{L.quantity}</NumHead>
+            <NumHead>{L.averageCost}</NumHead>
+            <NumHead>{L.price}</NumHead>
+            <NumHead>{L.costBasis}</NumHead>
+            <NumHead>{L.currentValue}</NumHead>
+            <NumHead>{L.realizedPnl}</NumHead>
+            <NumHead>{L.unrealizedPnl}</NumHead>
+            <NumHead>{L.totalPnl}</NumHead>
+            <NumHead>{L.allocation}</NumHead>
           </tr>
         </thead>
         <tbody>
@@ -105,4 +87,12 @@ export function HoldingsTable({
 
 function Num({ children }: { children?: ReactNode }) {
   return <td className="num">{children}</td>;
+}
+
+function NumHead({ children }: { children: ReactNode }) {
+  return (
+    <th scope="col" className="num">
+      {children}
+    </th>
+  );
 }

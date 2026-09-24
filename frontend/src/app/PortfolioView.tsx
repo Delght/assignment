@@ -47,7 +47,8 @@ export function PortfolioView({ portfolio }: { portfolio: PortfolioResponse }) {
             <Holdings holdings={holdings} summary={summary} />
           </Section>
           <Section id="transactions" title="Transactions">
-            <TransactionExplorer />
+            {/* A new dataset starts the explorer afresh: page 8 of the old file means nothing. */}
+            <TransactionExplorer key={dataset.loadedAt} />
           </Section>
         </>
       )}

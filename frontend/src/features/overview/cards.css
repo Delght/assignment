@@ -23,6 +23,8 @@
 .card {
   padding: 0.9rem 1rem;
   display: grid;
+  /* Figures line up across a row whether or not a card has a note. */
+  align-content: start;
   gap: 0.2rem;
 }
 

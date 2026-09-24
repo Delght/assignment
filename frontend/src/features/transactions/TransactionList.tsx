@@ -5,6 +5,7 @@ import { ExpandableList } from '@/shared/ExpandableList';
 import { Pnl } from '@/shared/Pnl';
 
 import type { Filters } from './filters';
+import { TRANSACTION_LABELS as L } from './transactionFields';
 
 /** Transactions on narrow screens: what, when and how much at a glance, the rest on tap. */
 export function TransactionList({
@@ -32,6 +33,12 @@ export function TransactionList({
       </div>
       <ExpandableList
         label="Transactions"
+        columns={{
+          title: L.assetAndSide,
+          subtitle: L.time,
+          value: L.grossValue,
+          subvalue: L.realizedPnl,
+        }}
         items={items.map((t) => ({
           key: t.tradeId,
           title: (
@@ -40,18 +47,18 @@ export function TransactionList({
               <span className={`side side-${t.side.toLowerCase()}`}>{t.side}</span>
             </>
           ),
-          subtitle: `${utcCompact(t.timestamp)} UTC`,
+          subtitle: utcCompact(t.timestamp),
           value: usd(t.grossValue),
           subvalue: t.realizedPnl === null ? undefined : <Pnl value={t.realizedPnl} />,
           details: [
-            { label: 'Trade ID', value: t.tradeId },
-            { label: 'Exchange', value: t.exchange },
-            { label: 'Quantity', value: quantity(t.quantity) },
-            { label: 'Price', value: unitPrice(t.priceUsd) },
-            { label: 'Fee', value: usd(t.feeUsd) },
+            { label: L.tradeId, value: t.tradeId },
+            { label: L.exchange, value: t.exchange },
+            { label: L.quantity, value: quantity(t.quantity) },
+            { label: L.price, value: unitPrice(t.priceUsd) },
+            { label: L.fee, value: usd(t.feeUsd) },
             ...(t.realizedPnl === null
               ? []
-              : [{ label: 'Realized P&L', value: <Pnl value={t.realizedPnl} /> }]),
+              : [{ label: L.realizedPnl, value: <Pnl value={t.realizedPnl} /> }]),
           ],
         }))}
       />
