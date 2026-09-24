@@ -1,0 +1,18 @@
+.pnl {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pnl-up {
+  color: var(--up);
+}
+
+.pnl-down {
+  color: var(--down);
+}
+
+.pnl-arrow {
+  font-size: 0.7em;
+  margin-right: 0.25em;
+  vertical-align: 0.1em;
+}
