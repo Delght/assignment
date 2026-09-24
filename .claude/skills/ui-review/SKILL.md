@@ -26,6 +26,7 @@ Fix what fails, then report what was checked at which width and theme.
 - Figures in one row of cards line up, whether or not a card has a note.
 - Set the viewport size before loading the page: the phone layout is chosen when the page loads.
 - Hover every chart: tooltips are above everything else and readable.
+- Check sub-dollar and sub-cent P&L: axis ticks stay distinct instead of all reading `-$0`; very small ticks use scientific notation.
 - Light and dark mode.
 
 **States:** loading, API down (with retry), no trades, missing price, every position closed.

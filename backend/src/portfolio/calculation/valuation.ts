@@ -1,4 +1,4 @@
-import { type Dec, sumOf, ZERO } from '../decimal.js';
+import { addExact, type Dec, multiplyExact, subtractExact, sumOf, ZERO } from '../decimal.js';
 import { parseUtcTimestamp } from '../import/timestamp.js';
 import type { AssetSymbol, PriceQuote } from '../model.js';
 import type { Position } from './ledger.js';
@@ -7,19 +7,21 @@ import type { Position } from './ledger.js';
  * Value-based fields are null for an open position without a price (it is never valued at 0),
  * and 0 once the position is closed.
  */
-export type Holding = Position & {
-  status: 'open' | 'closed';
-  price: PriceQuote | null;
-  currentValue: Dec | null;
-  unrealizedPnl: Dec | null;
-  totalPnl: Dec | null;
-  /** unrealizedPnl / costBasis, open positions only. */
-  unrealizedReturn: Dec | null;
-  /** Null when unpriced or when the portfolio is worth 0. */
-  allocation: Dec | null;
-};
+export type Holding = Readonly<
+  Position & {
+    status: 'open' | 'closed';
+    price: PriceQuote | null;
+    currentValue: Dec | null;
+    unrealizedPnl: Dec | null;
+    totalPnl: Dec | null;
+    /** unrealizedPnl / costBasis, open positions only. */
+    unrealizedReturn: Dec | null;
+    /** Null when unpriced or when the portfolio is worth 0. */
+    allocation: Dec | null;
+  }
+>;
 
-export type PortfolioSummary = {
+export type PortfolioSummary = Readonly<{
   /** Priced holdings only. */
   currentValue: Dec;
   /** Every open position: it depends on trades only. */
@@ -31,11 +33,14 @@ export type PortfolioSummary = {
   unrealizedReturn: Dec | null;
   totalPnl: Dec;
   totalFees: Dec;
-  unpricedSymbols: AssetSymbol[];
-  pricesAsOf: { earliest: string; latest: string } | null;
-};
+  unpricedSymbols: readonly AssetSymbol[];
+  pricesAsOf: Readonly<{ earliest: string; latest: string }> | null;
+}>;
 
-export type PortfolioValuation = { summary: PortfolioSummary; holdings: Holding[] };
+export type PortfolioValuation = {
+  readonly summary: PortfolioSummary;
+  readonly holdings: readonly Holding[];
+};
 
 export function valuePortfolio(
   positions: readonly Position[],
@@ -58,15 +63,20 @@ export function valuePortfolio(
 
 function valueHolding(position: Position, price: PriceQuote | null): Omit<Holding, 'allocation'> {
   const open = !position.quantity.isZero();
-  const currentValue = !open ? ZERO : price ? position.quantity.times(price.priceUsd) : null;
-  const unrealizedPnl = currentValue?.minus(position.costBasis) ?? null;
+  const currentValue = !open
+    ? ZERO
+    : price
+      ? multiplyExact(position.quantity, price.priceUsd)
+      : null;
+  const unrealizedPnl =
+    currentValue === null ? null : subtractExact(currentValue, position.costBasis);
   return {
     ...position,
     status: open ? 'open' : 'closed',
     price,
     currentValue,
     unrealizedPnl,
-    totalPnl: unrealizedPnl ? position.realizedPnl.plus(unrealizedPnl) : null,
+    totalPnl: unrealizedPnl ? addExact(position.realizedPnl, unrealizedPnl) : null,
     unrealizedReturn:
       open && unrealizedPnl && position.costBasis.greaterThan(0)
         ? unrealizedPnl.dividedBy(position.costBasis)
@@ -74,7 +84,7 @@ function valueHolding(position: Position, price: PriceQuote | null): Omit<Holdin
   };
 }
 
-function summarize(holdings: Holding[], currentValue: Dec): PortfolioSummary {
+function summarize(holdings: readonly Holding[], currentValue: Dec): PortfolioSummary {
   const priced = holdings.filter(isOpenAndPriced);
   const realizedPnl = sumOf(holdings, (h) => h.realizedPnl);
   const unrealizedPnl = sumOf(priced, (h) => h.unrealizedPnl);
@@ -87,7 +97,7 @@ function summarize(holdings: Holding[], currentValue: Dec): PortfolioSummary {
     unrealizedReturn: pricedCostBasis.greaterThan(0)
       ? unrealizedPnl.dividedBy(pricedCostBasis)
       : null,
-    totalPnl: realizedPnl.plus(unrealizedPnl),
+    totalPnl: addExact(realizedPnl, unrealizedPnl),
     totalFees: sumOf(holdings, (h) => h.feesPaid),
     unpricedSymbols: holdings.filter((h) => h.status === 'open' && !h.price).map((h) => h.symbol),
     pricesAsOf: range(priced.map((h) => (h.price as PriceQuote).asOf)),

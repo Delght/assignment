@@ -70,14 +70,16 @@ Weighted-average cost, per asset across both exchanges, trades in `timestamp` or
 
 Fees are already inside P&L; Total fees is shown for information only.
 
-An import is all or nothing: any invalid row rejects the file and every problem is listed with its line ([rules](docs/plans/01-calculation-core.md#import-rules-as-they-stand)).
+An import is all or nothing: any invalid row rejects the file.
+Up to 200 problems are listed with their line numbers, with the total count when there are more ([rules](docs/plans/01-calculation-core.md#import-rules-as-they-stand)).
 
 The sample data gives value **$60,620.89**, cost basis $59,969.24, realized −$5,052.96, unrealized +$651.65, total **−$4,401.31** and fees $2,708.86, matching the independent Python reference ([`scripts/reference.py`](scripts/reference.py)).
 
 ## Precision
 
-- Amounts use `decimal.js` (60 significant digits), never JS numbers, which leave dust after full closes.
-- Imported amounts have at most 8 decimal places and 12 integer digits, so only divisions round.
+- Amounts use `decimal.js`, never JS numbers, which leave dust after full closes.
+- Additions, subtractions and products are exact; only divisions round, at 60 significant digits.
+- Imported amounts have at most 8 decimal places and 12 integer digits.
 - The API sends full-precision decimal strings; the browser rounds once, half-even, for display.
 
 [Details and examples](docs/plans/01-calculation-core.md#precision-and-rounding-as-it-stands).

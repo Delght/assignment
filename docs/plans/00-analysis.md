@@ -68,5 +68,5 @@ Also assumed: timestamps are UTC (the brief says so), ties in time are ordered b
 ## Done when
 
 - The traps above are written into `CLAUDE.md` as rules.
-- `.claude/` is set up: guardrails in `settings.json`, the four skills, the `calc-reviewer` agent.
+- `.claude/` is set up: guardrails in `settings.json` and the four skills.
 - The phases and decisions are in [README](README.md).

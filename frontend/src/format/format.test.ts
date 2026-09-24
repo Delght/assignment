@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  compactUsd,
   percent,
   quantity,
   signedPercent,
@@ -20,6 +21,7 @@ describe('usd', () => {
     ['1.005000000000000000004999', '$1.01'], // just above half a cent, as the API now sends it
     ['1234500011.3450000000000001', '$1,234,500,011.35'], // Number() would drop the 1 and show …34
     ['-4401.3084972465', '-$4,401.31'],
+    ['-0.025', '-$0.02'], // a half cent: half-even keeps the even 2
     ['0', '$0.00'],
     ['12345678901234567890.125', '$12,345,678,901,234,567,890.12'], // beyond float precision
   ])('%s → %s', (input, output) => {
@@ -88,5 +90,19 @@ describe('utcCompact', () => {
   it('drops the zone and zero seconds for columns headed UTC', () => {
     expect(utcCompact('2025-10-01T09:00:00Z')).toBe('2025-10-01 09:00');
     expect(utcCompact('2025-10-01T09:00:30Z')).toBe('2025-10-01 09:00:30');
+  });
+});
+
+describe('compactUsd', () => {
+  it.each([
+    [-0.03, '-$0.03'],
+    [-0.02, '-$0.02'],
+    [-0.01, '-$0.01'],
+    [0.005, '$0.005'],
+    [-0.00000001, '-$1E-8'],
+    [-0, '$0'],
+    [12000, '$12K'],
+  ])('keeps the scale legible for %s', (value, expected) => {
+    expect(compactUsd(value)).toBe(expected);
   });
 });

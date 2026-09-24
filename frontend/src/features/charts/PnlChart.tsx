@@ -15,7 +15,9 @@ import {
 
 import type { Holding } from '@/api/types';
 
-import { compactUsd, type PnlBar, pnlData } from './chartData';
+import { compactUsd } from '@/format/format';
+
+import { type PnlBar, pnlData } from './chartData';
 
 const solid = (value: number) => (value < 0 ? 'var(--loss)' : 'var(--gain)');
 const hatched = (value: number) => (value < 0 ? 'url(#pnl-hatch-loss)' : 'url(#pnl-hatch-gain)');

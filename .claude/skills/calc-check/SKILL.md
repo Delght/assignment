@@ -14,7 +14,9 @@ Report each step with its exit code or the figures compared; stop at the first f
    Expected values in new tests must be worked out by hand in a comment or taken from the reference file, never read back from the engine.
 3. **Cash-flow identity.** Total P&L must equal current value + SELL proceeds after fees − BUY cost with fees.
    It holds for any cost method, so it catches fees counted twice or cost lost.
-   The sample-data test checks it; for a new fixture, add the same assertion.
+   The sample-data test checks exact equality; for a new fixture, add the same assertion.
+   Include BUY 11 @ 1 + fee 0.02, SELL 1 @ 1, SELL 10 @ 1 − fee 0.005: portfolio and transaction totals must be exactly -0.025, displayed as -$0.02 with half-even.
+   Also cover BUY 6 @ 1 + fee 1, SELL 3 @ 1.165: cost removed is exactly 3.5 and realized P&L is -0.005 (the division comes last).
 4. **Full closes.** After TRD-0076…0080 and TRD-0156…0160 quantity and cost basis are exactly 0.
 5. **Mutation check** for a new or rewritten rule: break it on purpose (e.g. drop the SELL fee), run the tests, confirm at least one fails, restore the code and confirm with `git diff`.
 6. **Boundaries**, when parsing or rounding changed: amounts exactly at the limits (8 decimal places, 12 integer digits) are accepted and one step beyond is rejected; an average just above half a cent (e.g. BUY 10000.00000001 @ 1.00500001 and 10000 @ 1.00499999) reaches the browser as $1.01, so nothing rounds before display.

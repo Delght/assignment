@@ -9,9 +9,8 @@ Each phase has a plan written before the work: scope, decisions and how it was c
 | 2 | [API](02-api.md) | Portfolio, transactions, import, reset, health |
 | 3 | [Web](03-web.md) | Dashboard: cards, holdings, charts, transaction explorer, import |
 | 4 | [Deploy](04-deploy.md) | One container serving API and web |
-| 5 | [Docs](05-docs.md) | README and AI workflow |
 
-After phase 5 a second model reviewed the code; each plan it changed has a *Revised after review* section.
+After the last phase a second model reviewed the code; each plan it changed has a *Revised after review* section.
 
 ## Decisions
 
@@ -39,5 +38,5 @@ Enforced by the tools:
 Instructions the agent follows:
 
 - [`CLAUDE.md`](../../CLAUDE.md): the rules and the definition of done.
-- Skills: [`calc-check`](../../.claude/skills/calc-check/SKILL.md) (numbers checked from outside the engine), [`ui-review`](../../.claude/skills/ui-review/SKILL.md) (UI rules), [`deploy-check`](../../.claude/skills/deploy-check/SKILL.md) (image and live checks), [`ai-log`](../../.claude/skills/ai-log/SKILL.md) (notes for the workflow write-up).
-- Agents: [`calc-reviewer`](../../.claude/agents/calc-reviewer.md) (read-only review of calculation changes), [`code-reviewer`](../../.claude/agents/code-reviewer.md) (review of each phase before it is committed).
+- Skills: [`calc-check`](../../.claude/skills/calc-check/SKILL.md) (numbers checked from outside the engine), [`ui-review`](../../.claude/skills/ui-review/SKILL.md) (UI rules), and [`deploy-check`](../../.claude/skills/deploy-check/SKILL.md) (image and live checks).
+- Agent: [`code-reviewer`](../../.claude/agents/code-reviewer.md), a review of each phase before it is committed.

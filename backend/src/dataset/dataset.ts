@@ -22,7 +22,7 @@ export type Dataset = {
   readonly trades: readonly Trade[];
   readonly prices: PriceSnapshot;
   readonly valuation: PortfolioValuation;
-  readonly effectsById: ReadonlyMap<string, TradeEffect>;
+  readonly effectsById: ReadonlyMap<string, Readonly<TradeEffect>>;
   /** About the trades first, then about the prices. */
   readonly warnings: readonly string[];
 };

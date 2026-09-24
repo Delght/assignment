@@ -9,9 +9,6 @@ export type CsvReadResult = { rows: CsvRow[] | null; issues: ValidationIssue[] }
 
 type RecordWithInfo = { record: string[]; info: { lines: number } };
 
-/** The code of a row left out because its number of values does not match the header. */
-export const WRONG_COLUMN_COUNT = 'column_count';
-
 /**
  * Rows keyed by header name, with the real line number of each. Rows with the wrong number of
  * values are reported and left out; extra columns are ignored.
@@ -56,7 +53,7 @@ export function readCsv(text: string, required: readonly string[]): CsvReadResul
     if (record.length !== columns.length) {
       issues.push({
         line: info.lines,
-        code: WRONG_COLUMN_COUNT,
+        code: 'column_count',
         message: `Line ${info.lines} has ${plural(record.length, 'value')}; the header has ${columns.length}.`,
       });
       continue;

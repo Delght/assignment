@@ -65,3 +65,16 @@ export function trendOf(
   if (shown.startsWith('-')) return 'down';
   return 'flat';
 }
+
+/** Chart axis coordinates: keep sub-dollar ticks distinct, and tiny ticks short enough to fit. */
+export function compactUsd(value: number): string {
+  const magnitude = Math.abs(value);
+  return format(String(value), {
+    style: 'currency',
+    currency: 'USD',
+    signDisplay: 'negative',
+    ...(magnitude > 0 && magnitude < 1
+      ? { notation: magnitude < 0.001 ? 'scientific' : 'standard', maximumSignificantDigits: 2 }
+      : { notation: 'compact', maximumFractionDigits: 1 }),
+  });
+}

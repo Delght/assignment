@@ -11,7 +11,7 @@ Goal: a dashboard that answers "how is my portfolio doing and why" at a glance, 
 - `features/holdings/`: holdings table on wide screens, expandable list on narrow ones; closed assets with realized P&L stay visible.
 - `features/charts/`: allocation donut by current value; realized and unrealized P&L per asset.
 - `features/transactions/`: explorer with asset search, exchange, side and date filters, sort by time, pagination, gross value and fee columns.
-- `features/dataset/`: import and reset, with every validation issue listed.
+- `features/dataset/`: import and reset, listing up to 200 validation issues and the total count when truncated.
 - `format/`: the only place numbers are rounded for display.
 - `shared/`: pieces used by several features (P&L figure, asset label and colours, section, alert, error boundary, scroll region, expandable list).
 
@@ -19,7 +19,7 @@ Goal: a dashboard that answers "how is my portfolio doing and why" at a glance, 
 
 - **Formatting from strings.**
   `Intl.NumberFormat.format` takes the decimal string with `roundingMode: 'halfEven'`, so display rounding is exact.
-  Charts convert to numbers only to size bars and slices.
+  Charts use numbers for coordinates and axis ticks; monetary labels and tooltips retain the exact API strings.
 - **Server-side explorer.**
   Filtering, sorting and paging happen in `/api/transactions`, so totals for a filter cover every matching row, not only the page.
 - **Colour has one meaning.**
@@ -57,3 +57,4 @@ From later reviews of the running app and of the code:
 - The same figure had different names on the table and the phone list (*Avg cost* and *Average cost*); each feature now takes its labels from one place (`holdingFields.tsx`, `transactionFields.ts`).
 - After importing a smaller file the explorer stayed on a page that no longer existed; a new dataset now starts it from page 1.
 - The hidden file input behind the import button was a keyboard stop with no label; it is out of the tab order.
+- With a P&L of a few cents, every axis tick read `-$0`; ticks below $1 now keep two significant digits.

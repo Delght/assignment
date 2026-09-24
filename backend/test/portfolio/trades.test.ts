@@ -183,40 +183,16 @@ describe('parseTrades: rejected files', () => {
     ]);
   });
 
-  it('still judges holdings of assets whose rows are all valid', () => {
+  it('judges holdings only once every row is valid', () => {
     const issues = issuesOf(
       tradesCsv(
         'T1,2025-10-01T00:00:00Z,Binance,BTC,SELL,1,100,0',
         'T2,2025-10-02T00:00:00Z,Kraken,ETH,BUY,1,100,0',
-        'T3,2025-10-03T00:00:00Z,Binance,ETH,SELL,2,100,0',
       ),
     );
-    // BTC's history is complete, so T1 is a short sale. ETH's is not (T2 is broken), so
-    // T3 cannot be judged and is not reported.
-    expect(summary(issues)).toEqual([
-      { line: 2, code: 'insufficient_quantity' },
-      { line: 3, code: 'unsupported_exchange' },
-    ]);
-  });
-
-  it('judges no holdings when a row cannot be tied to an asset', () => {
-    // Line 2 lacks its fee, so its values cannot be trusted to be in the right columns; line 5's
-    // symbol is unknown and could be a typo for any asset. Either could be the BUY that covers
-    // the SELL after it, so neither SELL is called a short sale.
-    const missingValue = issuesOf(
-      tradesCsv(
-        'T1,2025-10-01T00:00:00Z,Binance,BTC,BUY,1,100',
-        'T2,2025-10-02T00:00:00Z,Binance,BTC,SELL,1,120,0',
-      ),
-    );
-    expect(summary(missingValue)).toEqual([{ line: 2, code: 'column_count' }]);
-    const unknownSymbol = issuesOf(
-      tradesCsv(
-        'T1,2025-10-01T00:00:00Z,Binance,BTCC,BUY,1,100,0',
-        'T2,2025-10-02T00:00:00Z,Binance,BTC,SELL,1,120,0',
-      ),
-    );
-    expect(summary(unknownSymbol)).toEqual([{ line: 2, code: 'unsupported_symbol' }]);
+    // T1 would be a short sale, but with T2 broken the quantities held are not known yet:
+    // the file is rejected for T2, and T1 is judged once T2 is fixed.
+    expect(summary(issues)).toEqual([{ line: 3, code: 'unsupported_exchange' }]);
   });
 
   it('reports every short sale, judging later sells by what was really held', () => {

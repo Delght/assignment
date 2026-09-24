@@ -9,9 +9,10 @@
 - **Prompts:** I prompted in Vietnamese; each prompt below is a faithful English translation.
 - **Guardrails I set for the agent:** `CLAUDE.md` holds the business rules, the calculation rules and the commands; checks count only by exit code (`pnpm verify` must exit 0); expected test values must never come from running the code under test.
 
-## Where the agent setup came from
+## How the agent setup grew
 
-Each rule in `.claude/` comes from these examples: `calc-check` from examples 3 and 4, `ui-review` from 6, `deploy-check` from 7, the formatting hook from formatting failing `pnpm verify` five times in one session, and the `code-reviewer` agent from the review at the end.
+`.claude/` was set up in phase 0 from the brief's priorities: `calc-check` to check numbers from outside the engine, `ui-review` for the page, and `deploy-check` for the live service.
+It grew with the work: `ui-review` and `calc-check` took in what the later reviews found, the formatting hook came after formatting alone failed `pnpm verify` five times, and the `code-reviewer` agent came from the review by a second model at the end.
 The full setup: [Working with the agent](docs/plans/README.md#working-with-the-agent).
 
 ## 1. Requirement analysis and planning: find the traps, then plan the work

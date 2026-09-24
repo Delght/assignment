@@ -98,8 +98,8 @@ describe.skipIf(!hasSampleData)('sample data', () => {
     const difference = cashFlowPnl(trades, valuation.summary.currentValue).minus(
       valuation.summary.totalPnl,
     );
-    // Equal up to the 40-digit arithmetic's last places.
-    expect(difference.abs().lessThan('1e-20')).toBe(true);
+    // Exact bookkeeping makes division approximations cancel out of total P&L.
+    expect(difference.isZero()).toBe(true);
   });
 
   it('closes every position to exactly zero at each full close', () => {
@@ -109,6 +109,7 @@ describe.skipIf(!hasSampleData)('sample data', () => {
       expect(effect?.side, tradeId).toBe('SELL');
       expect(effect?.quantityAfter.isZero(), tradeId).toBe(true);
       expect(effect?.costBasisAfter.isZero(), tradeId).toBe(true);
+      expect(effect?.averageCostAfter.isZero(), tradeId).toBe(true);
     }
   });
 });

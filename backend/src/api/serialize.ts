@@ -42,8 +42,8 @@ export function portfolioResponse(dataset: Dataset): PortfolioResponse {
       unrealizedReturn: decOrNull(summary.unrealizedReturn),
       totalPnl: dec(summary.totalPnl),
       totalFees: dec(summary.totalFees),
-      unpricedSymbols: summary.unpricedSymbols,
-      pricesAsOf: summary.pricesAsOf,
+      unpricedSymbols: [...summary.unpricedSymbols],
+      pricesAsOf: summary.pricesAsOf ? { ...summary.pricesAsOf } : null,
     },
     holdings: holdings.map(holdingDto),
   };

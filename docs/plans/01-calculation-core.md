@@ -27,15 +27,16 @@ Out of scope for this phase: HTTP, storage, formatting for display.
 | Where | Type | Rounding |
 | --- | --- | --- |
 | Import | Plain decimal text, at most 8 decimal places and 12 digits before the point | None: anything outside the limits is rejected |
-| Calculation (backend) | `decimal.js`, 60 significant digits | Only where a division is involved (average cost and what a sale removes at it, allocation, return), half-even |
+| Calculation (backend) | `decimal.js`: exact additions, subtractions and products; divisions at 60 significant digits | Half-even, on divisions only (average cost, cost removed by a partial sale, allocation, return) |
 | API | Decimal strings in plain notation | None: the engine's full value, so display is the only rounding |
 | Display (frontend) | The string, formatted by `Intl.NumberFormat` | Half-even: USD to cents; unit prices below $1 to 8 decimals; quantities to 8 decimals; percentages to 2 decimals |
 
 - JS numbers are never used for amounts.
   With binary floats the sample's full closes leave dust (ETH quantity −8.9e-16 after TRD-0077), which breaks the reset-to-zero rule and the no-short check.
-- The import limits make the arithmetic exact by construction: an amount has at most 20 significant digits, a product of two at most 40, and the sums of a 2 MB file add fewer than 6 more, all within 60 digits.
-  Gross values, fees and purchase costs reach the browser exactly; values that go through a division carry the engine's rounding at the 60th digit, far beyond what is displayed.
-  The API does not cut them again: rounding twice can go wrong at a half-cent, where an average of 1.005000000000000000004999 cut at 20 places reads 1.005 and then shows as $1.00 instead of $1.01.
+- Additions, subtractions and products are exact: they run in a context with the maximum precision, which never rounds a finite result.
+  Only divisions round, at 60 significant digits.
+- A partial sale removes cost basis at the last BUY × quantity sold ÷ quantity at the last BUY, dividing last, so it rounds once instead of multiplying an already rounded average.
+- The API sends the engine's full value: rounding twice can go wrong at a half cent, where an average of 1.005000000000000000004999 cut at 20 places reads 1.005 and shows as $1.00 instead of $1.01.
 - The API uses `toFixed`, not `toString`, which would write 0.00000001 as `1e-8`.
 - The browser hands the decimal string to `Intl.NumberFormat` (ES2023 accepts strings as exact decimals), so display rounding is exact.
   A double holds about 17 significant digits: 1,234,499,999.00000001 × 1.00000001 = 1,234,500,011.3450000000000001 shows as $1,234,500,011.35 from the string, where `Number()` would drop the final 1 and show $1,234,500,011.34.
@@ -50,8 +51,7 @@ A file is accepted only when every row is valid; otherwise nothing changes and e
 - `exchange` Binance or Coinbase, `symbol` BTC, ETH, SOL, CKB or DOGE, `side` BUY or SELL (case-sensitive).
 - `quantity` and `price_usd` greater than 0, `fee_usd` 0 or more, all in plain decimal notation (no exponents or thousands separators) with at most 8 decimal places and 12 digits before the point.
 - No SELL above the quantity held at that time, judged per asset against what was really held.
-  Every short sale is reported for each asset whose rows are all valid; a broken row leaves that asset's balance unknown, so its sales are judged once the row is fixed.
-  A row that cannot be tied to an asset (wrong number of values, missing or unknown symbol) could be any asset's, so it leaves every balance unknown.
+  Holdings are judged once every row is valid: a broken row makes the quantity held at that time unknown.
 - Files up to 2 MB; blank lines, a BOM and CRLF, LF or mixed line endings are handled.
 
 ## Acceptance
@@ -78,10 +78,10 @@ A second model reviewed the finished code; each fix came with a test that failed
 The sections marked *as it stands* above describe the result.
 
 - Amounts were unbounded: a 22-place price or a 20-digit quantity was accepted and then rounded away.
-  Imports now allow at most 8 decimal places and 12 integer digits, and the engine runs at 60 digits, so inputs, products and sums are exact.
+  Imports now allow at most 8 decimal places and 12 integer digits.
 - A partial SELL recomputed the average from what remained, changing its last digit.
   The ledger now stores the average: a BUY sets it, a SELL keeps it, a full close resets it.
-- Any broken row switched off the short-sale check for the whole file.
-  Short sales are now judged per asset wherever the balance is known.
 - `scripts/reference.py` sorted timestamps as text (wrong with fractional seconds) and divided by zero when every position was closed.
   Both are fixed, and the script has tests of its own (`scripts/test_reference.py`).
+- Sums at 60 digits rounded division results: a round trip that loses exactly $0.025 in fees (BUY 11 @ 1 + 0.02, SELL 1 @ 1, SELL 10 @ 1 − 0.005) showed -$0.03 instead of -$0.02.
+  Additions, subtractions and products are now exact, and a partial sale divides last.

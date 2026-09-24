@@ -50,12 +50,3 @@ export function pnlData(holdings: Holding[]): PnlBar[] {
     unrealizedLabel: h.unrealizedPnl === null ? 'no price' : signedUsd(h.unrealizedPnl),
   }));
 }
-
-export function compactUsd(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(value);
-}

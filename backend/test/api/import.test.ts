@@ -44,6 +44,24 @@ describe('POST /api/import and /api/reset', () => {
     expect(btc.averageCost.startsWith('1.00500000000000000000499999')).toBe(true);
   });
 
+  it('sends a half-cent P&L exactly', async () => {
+    // All units trade at $1; only fees lose money: -(0.02 + 0.005) = -0.025.
+    await upload(
+      http(),
+      [
+        HEADER,
+        'T1,2026-01-01T00:00:00Z,Binance,BTC,BUY,11,1,0.02',
+        'T2,2026-01-02T00:00:00Z,Binance,BTC,SELL,1,1,0',
+        'T3,2026-01-03T00:00:00Z,Binance,BTC,SELL,10,1,0.005',
+      ].join('\n'),
+    );
+    const portfolio = (await http().get('/api/portfolio')).body;
+    const transactions = (await http().get('/api/transactions')).body;
+    expect(portfolio.summary.totalPnl).toBe('-0.025');
+    expect(portfolio.summary.realizedPnl).toBe('-0.025');
+    expect(transactions.totals.realizedPnl).toBe('-0.025');
+  });
+
   it('does not call a sale short when the row before it cannot be read', async () => {
     const response = await upload(
       http(),

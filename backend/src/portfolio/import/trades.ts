@@ -9,7 +9,7 @@ import {
   type Trade,
   type ValidationIssue,
 } from '../model.js';
-import { readCsv, WRONG_COLUMN_COUNT } from './csv.js';
+import { readCsv } from './csv.js';
 import { FirstSeen, RowReader } from './row-reader.js';
 
 const TRADE_COLUMNS = [
@@ -25,10 +25,8 @@ const TRADE_COLUMNS = [
 
 /**
  * All-or-nothing: either every row is valid and all trades are returned, or every problem is
- * listed and nothing is returned. Holdings (no short sale) are checked per asset, for every asset
- * whose rows are all valid: a broken row makes that asset's running balance unknown, and a row
- * that cannot be tied to an asset (wrong number of values, missing or unknown symbol) could be
- * any asset's, so it leaves every balance unknown.
+ * listed and nothing is returned. Holdings (no short sale) are checked only once every row is
+ * valid: a broken row makes the quantity held at that time unknown.
  */
 export function parseTrades(text: string): ParseResult<Trade[]> {
   const { rows, issues } = readCsv(text, TRADE_COLUMNS);
@@ -36,8 +34,6 @@ export function parseTrades(text: string): ParseResult<Trade[]> {
 
   const trades: Trade[] = [];
   const ids = new FirstSeen();
-  const unknownBalance = new Set<AssetSymbol>();
-  let everyBalanceUnknown = issues.some((issue) => issue.code === WRONG_COLUMN_COUNT);
   for (const { line, cells } of rows) {
     const row = new RowReader(line, cells);
     const tradeId = row.text('trade_id');
@@ -69,8 +65,6 @@ export function parseTrades(text: string): ParseResult<Trade[]> {
       !feeUsd
     ) {
       issues.push(...row.issues);
-      if (symbol) unknownBalance.add(symbol);
-      else everyBalanceUnknown = true;
       continue;
     }
     const timestamp = cells.timestamp as string;
@@ -88,10 +82,7 @@ export function parseTrades(text: string): ParseResult<Trade[]> {
     });
   }
 
-  if (!everyBalanceUnknown) {
-    issues.push(...shortSales(trades.filter((trade) => !unknownBalance.has(trade.symbol))));
-  }
-  issues.sort((a, b) => (a.line ?? 0) - (b.line ?? 0));
+  if (issues.length === 0) issues.push(...shortSales(trades));
   return issues.length > 0 ? { ok: false, issues } : { ok: true, value: trades };
 }
 

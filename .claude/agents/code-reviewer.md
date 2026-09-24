@@ -22,7 +22,7 @@ Check, in this order:
 
 1. **Numbers.** The rules in `CLAUDE.md`: fees capitalized or deducted once, the average kept by a SELL, exact zeros after a full close, ordering, nothing rounded before display.
    Look for an input inside the import limits where the engine and `scripts/reference.py` disagree, or where a rounding step can change what is displayed.
-2. **Import.** Every rule, every issue with its line, all-or-nothing, short sales judged only where the balance is known.
+2. **Import.** Every rule, every issue with its line, all-or-nothing, short sales judged once every row is valid.
 3. **Architecture.** `backend/src/portfolio` free of framework code; `dataset/` free of HTTP; dependencies pointing inward; the frontend never computing P&L; no dead fields, no god files, no logic keyed on message text.
 4. **Tests.** Each changed rule has a test that fails without the change: prove it in the temporary copy.
    Expected values come from hand calculations or the reference script.
