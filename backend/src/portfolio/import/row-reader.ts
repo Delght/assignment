@@ -1,6 +1,8 @@
-import { type Dec, parseDecimal } from '../decimal.js';
+import { AMOUNT_LIMITS, Dec, parseDecimal } from '../decimal.js';
 import type { ValidationIssue } from '../model.js';
 import { parseUtcTimestamp } from './timestamp.js';
+
+const AMOUNT_CEILING = new Dec(10).pow(AMOUNT_LIMITS.integerDigits);
 
 /** Reads the cells of one CSV row, collecting every problem instead of stopping at the first. */
 export class RowReader {
@@ -64,6 +66,22 @@ export class RowReader {
         column,
         'invalid_number',
         `${column} "${value}" is not a plain decimal number (e.g. 0.5 or 1200.25).`,
+      );
+      return null;
+    }
+    if (amount.decimalPlaces() > AMOUNT_LIMITS.decimalPlaces) {
+      this.fail(
+        column,
+        'too_many_decimals',
+        `${column} ${value} has more than ${AMOUNT_LIMITS.decimalPlaces} decimal places.`,
+      );
+      return null;
+    }
+    if (amount.abs().greaterThanOrEqualTo(AMOUNT_CEILING)) {
+      this.fail(
+        column,
+        'too_large',
+        `${column} ${value} has more than ${AMOUNT_LIMITS.integerDigits} digits before the decimal point.`,
       );
       return null;
     }

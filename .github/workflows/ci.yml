@@ -31,3 +31,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # The sample CSVs are not in git, so the sample-data suite skips here; every other test runs.
       - run: pnpm verify
+
+  reference:
+    name: reference script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python3 -m unittest discover -s scripts

@@ -22,15 +22,12 @@ export type HoldingDto = {
   averageCost: DecimalString;
   costBasis: DecimalString;
   currentPrice: DecimalString | null;
-  priceAsOf: string | null;
   currentValue: DecimalString | null;
   realizedPnl: DecimalString;
   unrealizedPnl: DecimalString | null;
   unrealizedReturn: DecimalString | null;
   totalPnl: DecimalString | null;
   allocation: DecimalString | null;
-  feesPaid: DecimalString;
-  tradeCount: number;
 };
 
 export type PortfolioResponse = {

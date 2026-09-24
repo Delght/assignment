@@ -1,12 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { type PriceQuote, parsePrices, parseTrades, type Trade } from '../portfolio/index.js';
+import { parsePrices, parseTrades, type Trade } from '../portfolio/index.js';
+import type { PriceSnapshot } from './dataset.js';
 
 // Messages reach clients, so they name files, never the server's paths.
-
-/** Prefix of price warnings, which outlive an import since prices are not replaced. */
-export const PRICE_WARNING = 'Prices: ';
 
 export type SampleTrades = { ok: true; trades: Trade[] } | { ok: false; message: string };
 
@@ -29,12 +27,12 @@ export function readSampleTrades(dataDir: string): SampleTrades {
 }
 
 /** Missing or invalid prices never block the app: holdings are shown unpriced, with a warning. */
-export function readPrices(dataDir: string): { quotes: PriceQuote[]; warnings: string[] } {
+export function readPrices(dataDir: string): PriceSnapshot {
   const path = join(dataDir, 'prices.csv');
   if (!existsSync(path)) {
     return {
       quotes: [],
-      warnings: [`${PRICE_WARNING}no prices.csv on the server; holdings are unpriced.`],
+      warnings: [`Prices: no prices.csv on the server; holdings are unpriced.`],
     };
   }
   const parsed = parsePrices(readFileSync(path, 'utf8'));
@@ -43,7 +41,7 @@ export function readPrices(dataDir: string): { quotes: PriceQuote[]; warnings: s
     : {
         quotes: [],
         warnings: [
-          `${PRICE_WARNING}prices.csv is invalid (${parsed.issues[0]?.message}); holdings are unpriced.`,
+          `Prices: prices.csv is invalid (${parsed.issues[0]?.message}); holdings are unpriced.`,
         ],
       };
 }

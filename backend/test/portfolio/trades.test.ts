@@ -165,6 +165,60 @@ describe('parseTrades: rejected files', () => {
     expect('value' in result).toBe(false);
   });
 
+  it('limits amounts to 8 decimal places and 12 integer digits', () => {
+    const issues = issuesOf(
+      tradesCsv(
+        'T1,2025-10-01T00:00:00Z,Binance,BTC,BUY,1,1.005000001,0',
+        'T2,2025-10-02T00:00:00Z,Binance,BTC,BUY,0.000000001,100,0',
+        'T3,2025-10-03T00:00:00Z,Binance,DOGE,BUY,1000000000000,0.2,0',
+        'T4,2025-10-04T00:00:00Z,Binance,DOGE,BUY,999999999999.99999999,0.2,0.00000001',
+        'T5,2025-10-05T00:00:00Z,Binance,DOGE,BUY,1.500000000000,0.2,0',
+      ),
+    );
+    // T4 sits exactly at both limits and T5's extra places are zeros: both are valid.
+    expect(summary(issues)).toEqual([
+      { line: 2, code: 'too_many_decimals' },
+      { line: 3, code: 'too_many_decimals' },
+      { line: 4, code: 'too_large' },
+    ]);
+  });
+
+  it('still judges holdings of assets whose rows are all valid', () => {
+    const issues = issuesOf(
+      tradesCsv(
+        'T1,2025-10-01T00:00:00Z,Binance,BTC,SELL,1,100,0',
+        'T2,2025-10-02T00:00:00Z,Kraken,ETH,BUY,1,100,0',
+        'T3,2025-10-03T00:00:00Z,Binance,ETH,SELL,2,100,0',
+      ),
+    );
+    // BTC's history is complete, so T1 is a short sale. ETH's is not (T2 is broken), so
+    // T3 cannot be judged and is not reported.
+    expect(summary(issues)).toEqual([
+      { line: 2, code: 'insufficient_quantity' },
+      { line: 3, code: 'unsupported_exchange' },
+    ]);
+  });
+
+  it('judges no holdings when a row cannot be tied to an asset', () => {
+    // Line 2 lacks its fee, so its values cannot be trusted to be in the right columns; line 5's
+    // symbol is unknown and could be a typo for any asset. Either could be the BUY that covers
+    // the SELL after it, so neither SELL is called a short sale.
+    const missingValue = issuesOf(
+      tradesCsv(
+        'T1,2025-10-01T00:00:00Z,Binance,BTC,BUY,1,100',
+        'T2,2025-10-02T00:00:00Z,Binance,BTC,SELL,1,120,0',
+      ),
+    );
+    expect(summary(missingValue)).toEqual([{ line: 2, code: 'column_count' }]);
+    const unknownSymbol = issuesOf(
+      tradesCsv(
+        'T1,2025-10-01T00:00:00Z,Binance,BTCC,BUY,1,100,0',
+        'T2,2025-10-02T00:00:00Z,Binance,BTC,SELL,1,120,0',
+      ),
+    );
+    expect(summary(unknownSymbol)).toEqual([{ line: 2, code: 'unsupported_symbol' }]);
+  });
+
   it('reports every short sale, judging later sells by what was really held', () => {
     const issues = issuesOf(
       tradesCsv(

@@ -1,6 +1,5 @@
 import {
   analysePortfolio,
-  type Ledger,
   type PortfolioValuation,
   type PriceQuote,
   sortTrades,
@@ -8,38 +7,45 @@ import {
   type TradeEffect,
 } from '../portfolio/index.js';
 
+/** prices.csv as loaded, with what went wrong reading it; it outlives every import. */
+export type PriceSnapshot = {
+  readonly quotes: readonly PriceQuote[];
+  readonly warnings: readonly string[];
+};
+
 /** Everything computed from one set of trades and prices. Replaced whole, never edited. */
 export type Dataset = {
-  source: 'sample' | 'upload' | 'none';
-  fileName: string | null;
-  loadedAt: string;
+  readonly source: 'sample' | 'upload' | 'none';
+  readonly fileName: string | null;
+  readonly loadedAt: string;
   /** In ledger order: timestamp, then trade_id. */
-  trades: Trade[];
-  quotes: PriceQuote[];
-  ledger: Ledger;
-  valuation: PortfolioValuation;
-  effectsById: Map<string, TradeEffect>;
-  warnings: string[];
+  readonly trades: readonly Trade[];
+  readonly prices: PriceSnapshot;
+  readonly valuation: PortfolioValuation;
+  readonly effectsById: ReadonlyMap<string, TradeEffect>;
+  /** About the trades first, then about the prices. */
+  readonly warnings: readonly string[];
 };
 
 export function buildDataset(
   source: Dataset['source'],
   trades: readonly Trade[],
-  quotes: PriceQuote[],
-  warnings: string[],
-  fileName: string | null = null,
+  prices: PriceSnapshot,
+  {
+    fileName = null,
+    warnings = [],
+  }: { fileName?: string | null; warnings?: readonly string[] } = {},
 ): Dataset {
   const sorted = sortTrades(trades);
-  const { ledger, valuation } = analysePortfolio(sorted, quotes);
+  const { ledger, valuation } = analysePortfolio(sorted, prices.quotes);
   return {
     source,
     fileName,
     loadedAt: new Date().toISOString(),
     trades: sorted,
-    quotes,
-    ledger,
+    prices,
     valuation,
     effectsById: new Map(ledger.effects.map((effect) => [effect.tradeId, effect])),
-    warnings,
+    warnings: [...warnings, ...prices.warnings],
   };
 }

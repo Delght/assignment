@@ -8,26 +8,27 @@ export type Exchange = (typeof EXCHANGES)[number];
 export type AssetSymbol = (typeof SYMBOLS)[number];
 export type Side = (typeof SIDES)[number];
 
+/** Parsed once and never changed. */
 export type Trade = {
-  tradeId: string;
+  readonly tradeId: string;
   /** As written in the file (UTC ISO-8601). */
-  timestamp: string;
+  readonly timestamp: string;
   /** Milliseconds since the epoch, for ordering. */
-  time: number;
-  exchange: Exchange;
-  symbol: AssetSymbol;
-  side: Side;
-  quantity: Dec;
-  priceUsd: Dec;
-  feeUsd: Dec;
+  readonly time: number;
+  readonly exchange: Exchange;
+  readonly symbol: AssetSymbol;
+  readonly side: Side;
+  readonly quantity: Dec;
+  readonly priceUsd: Dec;
+  readonly feeUsd: Dec;
   /** Line in the source file, for error messages. */
-  line: number;
+  readonly line: number;
 };
 
 export type PriceQuote = {
-  symbol: AssetSymbol;
-  priceUsd: Dec;
-  asOf: string;
+  readonly symbol: AssetSymbol;
+  readonly priceUsd: Dec;
+  readonly asOf: string;
 };
 
 export type ValidationIssue = {

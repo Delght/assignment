@@ -70,6 +70,18 @@ describe('SELL', () => {
   });
 });
 
+describe('average cost', () => {
+  it('is left exactly as it was by a partial sell, even when it repeats', () => {
+    // BUY 3 @ 10 + fee 1 = 31 → average 31 / 3 = 10.333…, which no decimal holds exactly.
+    // Recomputing it from what remains after a sale would differ in the last digit.
+    const buy = 'T1,2025-10-01T00:00:00Z,Binance,BTC,BUY,3,10,1';
+    const before = btc(buildLedger(trades(buy))).averageCost;
+    const after = buildLedger(trades(buy, 'T2,2025-10-02T00:00:00Z,Binance,BTC,SELL,1,12,0'));
+    expect(btc(after).averageCost.equals(before)).toBe(true);
+    expect(after.effects.at(-1)?.averageCostAfter.equals(before)).toBe(true);
+  });
+});
+
 describe('full close', () => {
   it('resets to exactly zero, so the next BUY starts a fresh average', () => {
     // BUY 3 @ 10 + 1 = 31 (average 10.333…); SELL 3 @ 20 − 0.5 = 59.5 → realized 28.5

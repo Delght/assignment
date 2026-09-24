@@ -29,6 +29,34 @@ describe('POST /api/import and /api/reset', () => {
     });
   });
 
+  it('sends an average just above half a cent with the digits that make it round up', async () => {
+    // (10000.00000001 × 1.00500001 + 10000 × 1.00499999) / 20000.00000001
+    //   = 1.00500000000000000000499999…, per Python Decimal. Cut at 20 places it would read 1.005.
+    await upload(
+      http(),
+      [
+        HEADER,
+        'X1,2025-11-01T00:00:00Z,Binance,BTC,BUY,10000.00000001,1.00500001,0',
+        'X2,2025-11-02T00:00:00Z,Binance,BTC,BUY,10000,1.00499999,0',
+      ].join('\n'),
+    );
+    const [btc] = (await http().get('/api/portfolio')).body.holdings;
+    expect(btc.averageCost.startsWith('1.00500000000000000000499999')).toBe(true);
+  });
+
+  it('does not call a sale short when the row before it cannot be read', async () => {
+    const response = await upload(
+      http(),
+      [
+        HEADER,
+        'X1,2025-11-01T00:00:00Z,Binance,BTC,BUY,1,120', // fee missing
+        'X2,2025-11-02T00:00:00Z,Binance,BTC,SELL,1,130,0',
+      ].join('\n'),
+    );
+    expect(response.status).toBe(422);
+    expect(response.body.issues.map((i: { code: string }) => i.code)).toEqual(['column_count']);
+  });
+
   it('rejects an invalid file with every issue and leaves the portfolio untouched', async () => {
     const before = (await http().get('/api/portfolio')).body.summary;
     const response = await upload(

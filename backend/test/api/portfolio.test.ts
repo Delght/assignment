@@ -1,7 +1,15 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
-import { AS_OF, SAMPLE_PRICES, SAMPLE_TRADES, startApp, useSampleApp } from './support.js';
+import {
+  AS_OF,
+  HEADER,
+  SAMPLE_PRICES,
+  SAMPLE_TRADES,
+  startApp,
+  upload,
+  useSampleApp,
+} from './support.js';
 
 describe('GET /api/portfolio', () => {
   const http = useSampleApp();
@@ -36,14 +44,11 @@ describe('GET /api/portfolio', () => {
       averageCost: '101',
       costBasis: '202',
       currentPrice: '150',
-      priceAsOf: AS_OF,
       currentValue: '300',
       realizedPnl: '0',
       unrealizedPnl: '98',
       totalPnl: '98',
       allocation: '0.75',
-      feesPaid: '2',
-      tradeCount: 1,
     });
   });
 });
@@ -87,6 +92,17 @@ describe('GET /api/portfolio without sample files', () => {
         pricesAsOf: null,
       });
       expect(portfolio.holdings[0]).toMatchObject({ currentPrice: null, currentValue: null });
+
+      // Prices are not replaced by an import, so neither is their warning.
+      await upload(
+        request(app.getHttpServer()),
+        `${HEADER}\nX1,2025-11-01T00:00:00Z,Binance,BTC,BUY,1,120,0`,
+      );
+      const after = (await request(app.getHttpServer()).get('/api/portfolio')).body;
+      expect(after.dataset.source).toBe('upload');
+      expect(after.dataset.warnings).toEqual([
+        'Prices: no prices.csv on the server; holdings are unpriced.',
+      ]);
     } finally {
       await close();
     }

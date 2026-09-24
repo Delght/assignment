@@ -1,5 +1,5 @@
 import type { Dataset } from '../dataset/dataset.js';
-import { Dec, type Holding, type Trade } from '../portfolio/index.js';
+import type { Dec, Holding, Trade } from '../portfolio/index.js';
 import type {
   DatasetInfo,
   DecimalString,
@@ -9,14 +9,13 @@ import type {
 } from './contract.js';
 
 /**
- * Far beyond display precision, and short of the 40-digit engine's rounding noise (a total can
- * otherwise end in …000000000021 at the 36th decimal place).
+ * The engine's value at full precision, in plain notation (`toString()` would write 0.00000001 as
+ * "1e-8"). Rounding happens once, for display: cutting here as well would round twice, and an
+ * average of 1.005000000000000000004999 cut at 20 places would show as $1.00 instead of $1.01.
+ * Values that went through a division end in digits that carry the engine's own rounding.
  */
-const WIRE_DECIMAL_PLACES = 20;
-
-/** Plain notation: `toString()` would write 0.00000001 as "1e-8". */
 export function dec(value: Dec): DecimalString {
-  return value.toDecimalPlaces(WIRE_DECIMAL_PLACES, Dec.ROUND_HALF_EVEN).toFixed();
+  return value.isZero() ? '0' : value.toFixed();
 }
 
 const decOrNull = (value: Dec | null): DecimalString | null => (value === null ? null : dec(value));
@@ -27,7 +26,7 @@ export function datasetInfo(dataset: Dataset): DatasetInfo {
     fileName: dataset.fileName,
     loadedAt: dataset.loadedAt,
     tradeCount: dataset.trades.length,
-    warnings: dataset.warnings,
+    warnings: [...dataset.warnings],
   };
 }
 
@@ -58,15 +57,12 @@ function holdingDto(holding: Holding): HoldingDto {
     averageCost: dec(holding.averageCost),
     costBasis: dec(holding.costBasis),
     currentPrice: holding.price ? dec(holding.price.priceUsd) : null,
-    priceAsOf: holding.price?.asOf ?? null,
     currentValue: decOrNull(holding.currentValue),
     realizedPnl: dec(holding.realizedPnl),
     unrealizedPnl: decOrNull(holding.unrealizedPnl),
     unrealizedReturn: decOrNull(holding.unrealizedReturn),
     totalPnl: decOrNull(holding.totalPnl),
     allocation: decOrNull(holding.allocation),
-    feesPaid: dec(holding.feesPaid),
-    tradeCount: holding.tradeCount,
   };
 }
 

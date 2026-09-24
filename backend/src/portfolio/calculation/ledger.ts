@@ -9,7 +9,6 @@ export type Position = {
   averageCost: Dec;
   realizedPnl: Dec;
   feesPaid: Dec;
-  tradeCount: number;
 };
 
 /** What one trade did to its asset's position. Fields that do not apply to its side are 0. */
@@ -52,14 +51,14 @@ export function sortTrades(trades: readonly Trade[]): Trade[] {
   );
 }
 
-type State = Omit<Position, 'symbol' | 'averageCost'>;
+type State = Omit<Position, 'symbol'>;
 
 const emptyState = (): State => ({
   quantity: ZERO,
   costBasis: ZERO,
+  averageCost: ZERO,
   realizedPnl: ZERO,
   feesPaid: ZERO,
-  tradeCount: 0,
 });
 
 export function buildLedger(trades: readonly Trade[]): Ledger {
@@ -72,14 +71,15 @@ export function buildLedger(trades: readonly Trade[]): Ledger {
 
   const positions = SYMBOLS.flatMap((symbol) => {
     const state = states.get(symbol);
-    return state ? [{ symbol, ...state, averageCost: averageOf(state) }] : [];
+    return state ? [{ symbol, ...state }] : [];
   });
   return { positions, effects };
 }
 
 /**
- * Weighted-average rules of the brief. A BUY capitalizes its fee; a SELL realizes net proceeds
- * minus average cost and leaves the average unchanged. Selling everything held removes the whole
+ * Weighted-average rules of the brief. A BUY capitalizes its fee and sets the average; a SELL
+ * realizes net proceeds minus average cost and keeps the stored average as it is (recomputing it
+ * from what remains would change its last digit). Selling everything held removes the whole
  * remaining cost basis, not average × quantity (the average is a rounded division and could
  * leave a residue), so a closed position is exactly zero before the next BUY.
  */
@@ -94,6 +94,7 @@ function applyTrade(state: State, trade: Trade): TradeEffect {
     costAdded = grossValue.plus(trade.feeUsd);
     state.quantity = state.quantity.plus(trade.quantity);
     state.costBasis = state.costBasis.plus(costAdded);
+    state.averageCost = state.costBasis.dividedBy(state.quantity);
   } else {
     // Validation rejects short sales; this only guards the invariant.
     if (trade.quantity.greaterThan(state.quantity)) {
@@ -101,14 +102,14 @@ function applyTrade(state: State, trade: Trade): TradeEffect {
     }
     const closes = trade.quantity.equals(state.quantity);
     netProceeds = grossValue.minus(trade.feeUsd);
-    costRemoved = closes ? state.costBasis : averageOf(state).times(trade.quantity);
+    costRemoved = closes ? state.costBasis : state.averageCost.times(trade.quantity);
     realizedPnl = netProceeds.minus(costRemoved);
     state.quantity = closes ? ZERO : state.quantity.minus(trade.quantity);
     state.costBasis = closes ? ZERO : state.costBasis.minus(costRemoved);
+    if (closes) state.averageCost = ZERO;
     state.realizedPnl = state.realizedPnl.plus(realizedPnl);
   }
   state.feesPaid = state.feesPaid.plus(trade.feeUsd);
-  state.tradeCount += 1;
 
   return {
     tradeId: trade.tradeId,
@@ -121,10 +122,6 @@ function applyTrade(state: State, trade: Trade): TradeEffect {
     realizedPnl,
     quantityAfter: state.quantity,
     costBasisAfter: state.costBasis,
-    averageCostAfter: averageOf(state),
+    averageCostAfter: state.averageCost,
   };
-}
-
-function averageOf({ quantity, costBasis }: Pick<State, 'quantity' | 'costBasis'>): Dec {
-  return quantity.isZero() ? ZERO : costBasis.dividedBy(quantity);
 }

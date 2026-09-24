@@ -1,6 +1,7 @@
 import { Body, Controller, Headers, HttpCode, Inject, Post } from '@nestjs/common';
 
 import { DatasetService } from '../dataset/dataset.service.js';
+import { InvalidTradesError, SampleUnavailableError } from '../dataset/errors.js';
 import { ApiError } from '../infra/http/api-error.js';
 import type { ImportResponse } from './contract.js';
 import { datasetInfo } from './serialize.js';
@@ -20,14 +21,33 @@ export class DatasetController {
         'Send the file as the request body with Content-Type: text/csv.',
       );
     }
-    return { dataset: datasetInfo(this.datasets.importTrades(body, cleanFileName(fileName))) };
+    try {
+      return { dataset: datasetInfo(this.datasets.importTrades(body, cleanFileName(fileName))) };
+    } catch (error) {
+      throw asApiError(error);
+    }
   }
 
   @Post('reset')
   @HttpCode(200)
   reset(): ImportResponse {
-    return { dataset: datasetInfo(this.datasets.reset()) };
+    try {
+      return { dataset: datasetInfo(this.datasets.reset()) };
+    } catch (error) {
+      throw asApiError(error);
+    }
   }
+}
+
+/** What the dataset's errors mean over HTTP; anything else goes on to the error filter. */
+function asApiError(error: unknown): unknown {
+  if (error instanceof InvalidTradesError) {
+    return new ApiError(422, 'invalid_file', error.message, error.issues);
+  }
+  if (error instanceof SampleUnavailableError) {
+    return new ApiError(409, 'sample_unavailable', error.message);
+  }
+  return error;
 }
 
 function cleanFileName(header: string | undefined): string | null {

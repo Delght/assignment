@@ -12,3 +12,4 @@ coverage/
 
 # Raw working notes (the AI log); AI_WORKFLOW.md is the curated version
 /notes/
+__pycache__/
