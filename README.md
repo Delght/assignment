@@ -1,8 +1,12 @@
 # Coinance
 
+[![CI](https://github.com/Delght/assignment/actions/workflows/ci.yml/badge.svg)](https://github.com/Delght/assignment/actions/workflows/ci.yml)
+
 A crypto portfolio dashboard: it imports a trade history, values it with a price snapshot, and shows holdings, weighted-average cost, realized and unrealized P&L, fees, and the transactions behind every figure.
 
-**Live:** https://assessment-z7u0.onrender.com/ (the first load can take up to a minute).
+**[Open the live app](https://assessment-z7u0.onrender.com/)** (the first load can take up to a minute).
+
+![Coinance dashboard with the sample data](docs/images/demo.png)
 
 Plans and decisions: [`docs/plans/`](docs/plans/README.md).
 How the AI agent was used: [AI_WORKFLOW.md](AI_WORKFLOW.md).
@@ -47,23 +51,7 @@ Tests assert known numbers, worked out by hand or by an independent Python scrip
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  files[("trades.csv<br/>prices.csv")]
-  upload(["Import on the page"])
-
-  subgraph backend["backend: NestJS"]
-    portfolio["portfolio/<br/>validate, ledger,<br/>valuation"] --> dataset["dataset/<br/>immutable,<br/>swapped whole"] --> api["api/<br/>JSON contract"]
-  end
-
-  subgraph frontend["frontend: React"]
-    features["features/<br/>cards, charts,<br/>tables"] --> format["format/<br/>the only place<br/>numbers round"]
-  end
-
-  files --> portfolio
-  upload -- "POST /api/import" --> portfolio
-  api -- "decimal strings" --> features
-```
+![Architecture: CSV files and imports go through portfolio/, dataset/ and api/ in the backend, then to features/ and format/ in the frontend](docs/images/architecture.png)
 
 - `portfolio/` holds all the calculation, in plain TypeScript with no framework.
 - A new dataset is built in full before it replaces the old one, so a rejected import changes nothing.
